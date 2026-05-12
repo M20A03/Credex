@@ -35,6 +35,10 @@ interface AuditStore {
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
 
+  // New: AI model selection
+  selectedAI: string;
+  setSelectedAI: (model: string) => void;
+
   // Reset
   reset: () => void;
 
@@ -73,6 +77,11 @@ export const useAuditStore = create<AuditStore>()(
 
       isLoading: false,
       setIsLoading: (isLoading) => set({ isLoading }),
+
+      // AI model selection
+      selectedAI: "claude-sonnet-4-20250514",
+      setSelectedAI: (selectedAI) => set({ selectedAI }),
+
 
       reset: () =>
         set({

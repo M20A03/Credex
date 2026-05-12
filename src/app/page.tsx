@@ -81,7 +81,7 @@ export default function HomePage() {
                 marginBottom: 32,
                 fontSize: 13,
                 fontWeight: 600,
-                color: "rgba(255,255,255,0.7)",
+                color: "var(--text-primary)",
                 letterSpacing: "0.04em",
               }}
             >
@@ -121,7 +121,7 @@ export default function HomePage() {
               transition={{ delay: 0.5 }}
               style={{
                 fontSize: "clamp(16px, 2vw, 20px)",
-                color: "rgba(255,255,255,0.6)",
+                color: "rgba(15,23,42,0.6)",
                 maxWidth: 560,
                 margin: "0 auto 40px",
                 lineHeight: 1.6,
@@ -165,7 +165,7 @@ export default function HomePage() {
                     borderRadius: 10,
                     padding: "6px 12px",
                     fontSize: 13,
-                    color: "rgba(255,255,255,0.7)",
+                    color: "rgba(15,23,42,0.45)",
                     cursor: "default",
                   }}
                 >

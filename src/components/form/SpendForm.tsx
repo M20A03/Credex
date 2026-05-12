@@ -77,7 +77,7 @@ export default function SpendForm() {
         className="glass"
         style={{ borderRadius: 20, padding: 32, marginBottom: 20 }}
       >
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24, color: "rgba(255,255,255,0.9)" }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24, color: "rgba(15,23,42,0.9)" }}>
           👥 Your Team
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
@@ -118,7 +118,7 @@ export default function SpendForm() {
         style={{ borderRadius: 20, padding: 32, marginBottom: 20 }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-          <h2 style={{ fontSize: 20, fontWeight: 700, color: "rgba(255,255,255,0.9)" }}>
+          <h2 style={{ fontSize: 20, fontWeight: 700, color: "rgba(15,23,42,0.9)" }}>
             🛠️ Your AI Tools
           </h2>
           <motion.button
@@ -127,10 +127,10 @@ export default function SpendForm() {
             onClick={handleAddTool}
             disabled={tools.length >= TOOLS.length}
             style={{
-              background: "rgba(109,40,217,0.15)",
+              background: "rgba(109,40,217,0.08)",
               border: "1px solid rgba(109,40,217,0.4)",
               borderRadius: 10,
-              color: "rgba(255,255,255,0.85)",
+              color: "rgba(15,23,42,0.85)",
               padding: "8px 16px",
               fontSize: 13,
               fontWeight: 600,
@@ -153,8 +153,8 @@ export default function SpendForm() {
               style={{
                 textAlign: "center",
                 padding: "48px 24px",
-                color: "rgba(255,255,255,0.35)",
-                border: "2px dashed rgba(255,255,255,0.08)",
+                color: "rgba(15,23,42,0.35)",
+                border: "2px dashed rgba(15,23,42,0.08)",
                 borderRadius: 14,
               }}
             >
@@ -262,12 +262,12 @@ export default function SpendForm() {
                     <div style={{
                       marginTop: 12,
                       fontSize: 13,
-                      color: "rgba(255,255,255,0.45)",
+                      color: "rgba(15,23,42,0.45)",
                       display: "flex",
                       gap: 16,
                     }}>
-                      <span>Monthly: <strong style={{ color: "rgba(255,255,255,0.75)" }}>{formatINR(monthlyCost)}</strong></span>
-                      <span>Annual: <strong style={{ color: "rgba(255,255,255,0.75)" }}>{formatINR(monthlyCost * 12)}</strong></span>
+                      <span>Monthly: <strong style={{ color: "rgba(15,23,42,0.75)" }}>{formatINR(monthlyCost)}</strong></span>
+                      <span>Annual: <strong style={{ color: "rgba(15,23,42,0.75)" }}>{formatINR(monthlyCost * 12)}</strong></span>
                     </div>
                   )}
                 </motion.div>
@@ -286,9 +286,9 @@ export default function SpendForm() {
         style={{ borderRadius: 20, padding: 32, marginBottom: 20 }}
       >
         <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6, color: "rgba(255,255,255,0.9)" }}>
-          📧 Get Results via Email <span style={{ fontSize: 14, fontWeight: 400, color: "rgba(255,255,255,0.4)" }}>(optional)</span>
+          📧 Get Results via Email <span style={{ fontSize: 14, fontWeight: 400, color: "rgba(15,23,42,0.4)" }}>(optional)</span>
         </h2>
-        <p style={{ fontSize: 13, color: "rgba(255,255,255,0.4)", marginBottom: 20 }}>
+        <p style={{ fontSize: 13, color: "rgba(15,23,42,0.4)", marginBottom: 20 }}>
           No spam. Unsubscribe in 1 click. We'll send your full audit summary.
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>

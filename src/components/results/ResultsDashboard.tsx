@@ -66,12 +66,12 @@ function ToolCard({ rec, index }: { rec: ToolRecommendation; index: number }) {
             <span style={{ fontSize: 22 }}>
               {{ cursor: "🖱️", "github-copilot": "🐙", claude: "🤖", chatgpt: "💬", gemini: "✨", windsurf: "🌊" }[rec.toolId] || "🔧"}
             </span>
-            <span style={{ fontWeight: 700, fontSize: 16, color: "rgba(255,255,255,0.95)" }}>
+            <span style={{ fontWeight: 700, fontSize: 16, color: "rgba(15,23,42,0.95)" }}>
               {rec.toolName}
             </span>
             <SeverityBadge severity={rec.severity} />
           </div>
-          <div style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", display: "flex", gap: 16 }}>
+          <div style={{ fontSize: 13, color: "rgba(15,23,42,0.5)", display: "flex", gap: 16 }}>
             <span>{rec.currentPlan} → {rec.recommendedPlan}</span>
             {rec.monthlySavings > 0 && (
               <span style={{ color: "#6EE7B7", fontWeight: 600 }}>
@@ -85,12 +85,12 @@ function ToolCard({ rec, index }: { rec: ToolRecommendation; index: number }) {
           <div style={{ fontSize: 22, fontWeight: 800, color: rec.monthlySavings > 0 ? "#10B981" : "rgba(255,255,255,0.5)" }}>
             {rec.monthlySavings > 0 ? `+${formatINRShort(rec.annualSavings)}/yr` : "✓"}
           </div>
-          <div style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: "rgba(15,23,42,0.35)", marginTop: 2 }}>
             {rec.monthlySavings > 0 ? "potential saving" : "well optimised"}
           </div>
         </div>
 
-        <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 20, transform: expanded ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s" }}>
+        <span style={{ color: "rgba(15,23,42,0.4)", fontSize: 20, transform: expanded ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.3s" }}>
           ▾
         </span>
       </button>
@@ -104,30 +104,30 @@ function ToolCard({ rec, index }: { rec: ToolRecommendation; index: number }) {
             transition={{ duration: 0.3 }}
             style={{ overflow: "hidden" }}
           >
-            <div style={{ padding: "0 24px 20px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+            <div style={{ padding: "0 24px 20px", borderTop: "1px solid rgba(15,23,42,0.06)" }}>
               {/* Before / After */}
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, margin: "16px 0" }}>
                 <div style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.18)", borderRadius: 10, padding: "12px 16px" }}>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 4 }}>Current</div>
+                  <div style={{ fontSize: 11, color: "rgba(15,23,42,0.45)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 4 }}>Current</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: "#FCA5A5" }}>{formatINR(rec.currentCost)}/mo</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{rec.currentPlan} plan</div>
+                  <div style={{ fontSize: 12, color: "rgba(15,23,42,0.4)", marginTop: 2 }}>{rec.currentPlan} plan</div>
                 </div>
                 <div style={{ background: "rgba(16,185,129,0.08)", border: "1px solid rgba(16,185,129,0.18)", borderRadius: 10, padding: "12px 16px" }}>
-                  <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 4 }}>Recommended</div>
+                  <div style={{ fontSize: 11, color: "rgba(15,23,42,0.45)", fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", marginBottom: 4 }}>Recommended</div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: "#6EE7B7" }}>{formatINR(rec.recommendedCost)}/mo</div>
-                  <div style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 }}>{rec.recommendedPlan} plan</div>
+                  <div style={{ fontSize: 12, color: "rgba(15,23,42,0.4)", marginTop: 2 }}>{rec.recommendedPlan} plan</div>
                 </div>
               </div>
 
               {/* Reason */}
-              <p style={{ fontSize: 14, color: "rgba(255,255,255,0.6)", lineHeight: 1.6, marginBottom: 12 }}>
+              <p style={{ fontSize: 14, color: "rgba(15,23,42,0.6)", lineHeight: 1.6, marginBottom: 12 }}>
                 {rec.reason}
               </p>
 
               {/* Savings bar */}
               {rec.monthlySavings > 0 && (
                 <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 6 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(15,23,42,0.45)", marginBottom: 6 }}>
                     <span>Annual savings</span>
                     <span style={{ color: "#6EE7B7", fontWeight: 600 }}>{formatINR(rec.annualSavings)}</span>
                   </div>
@@ -154,7 +154,7 @@ function ToolCard({ rec, index }: { rec: ToolRecommendation; index: number }) {
                   <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(109,40,217,0.9)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>
                     💡 Alternative Tool
                   </div>
-                  <p style={{ fontSize: 13, color: "rgba(255,255,255,0.6)" }}>{rec.alternativeTool.reason}</p>
+                  <p style={{ fontSize: 13, color: "rgba(15,23,42,0.6)" }}>{rec.alternativeTool.reason}</p>
                 </div>
               )}
             </div>
@@ -208,19 +208,19 @@ export default function ResultsDashboard() {
 
         {totalMonthlySavings > 0 ? (
           <>
-            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)", marginBottom: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(15,23,42,0.4)", marginBottom: 12 }}>
               Potential Annual Savings
             </div>
             <div className="savings-amount gradient-text-savings" style={{ marginBottom: 8 }}>
               <AnimatedCounter target={totalAnnualSavings} duration={2000} />
             </div>
-            <div style={{ fontSize: 16, color: "rgba(255,255,255,0.5)", marginBottom: 32 }}>
-              That's <strong style={{ color: "rgba(255,255,255,0.8)" }}>{formatINR(totalMonthlySavings)}/month</strong> · {savingsPercentage}% of your current spend
+            <div style={{ fontSize: 16, color: "rgba(15,23,42,0.5)", marginBottom: 32 }}>
+              That's <strong style={{ color: "rgba(15,23,42,0.8)" }}>{formatINR(totalMonthlySavings)}/month</strong> · {savingsPercentage}% of your current spend
             </div>
 
             {/* Progress gauge */}
             <div style={{ maxWidth: 400, margin: "0 auto 32px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(255,255,255,0.4)", marginBottom: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "rgba(15,23,42,0.4)", marginBottom: 8 }}>
                 <span>Current: {formatINRShort(totalCurrentMonthly)}/mo</span>
                 <span>Optimised: {formatINRShort(totalCurrentMonthly - totalMonthlySavings)}/mo</span>
               </div>
@@ -241,15 +241,15 @@ export default function ResultsDashboard() {
           <>
             <div style={{ fontSize: 60, marginBottom: 16 }}>✅</div>
             <h2 style={{ fontSize: 32, fontWeight: 800, marginBottom: 8 }}>You're spending well!</h2>
-            <p style={{ color: "rgba(255,255,255,0.5)" }}>Your AI stack of {formatINRShort(totalCurrentMonthly)}/mo is reasonably optimised.</p>
+            <p style={{ color: "rgba(15,23,42,0.5)" }}>Your AI stack of {formatINRShort(totalCurrentMonthly)}/mo is reasonably optimised.</p>
           </>
         )}
 
         {/* AI Summary */}
         {summaryText && (
           <div style={{
-            background: "rgba(255,255,255,0.04)",
-            border: "1px solid rgba(255,255,255,0.08)",
+            background: "rgba(15,23,42,0.03)",
+            border: "1px solid rgba(15,23,42,0.06)",
             borderRadius: 14,
             padding: "16px 20px",
             textAlign: "left",
@@ -258,7 +258,7 @@ export default function ResultsDashboard() {
             color: "rgba(255,255,255,0.65)",
             marginTop: 8,
           }}>
-            <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.35)", display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(15,23,42,0.35)", display: "block", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
               ✦ AI Summary
             </span>
             {summaryText}
@@ -298,7 +298,7 @@ export default function ResultsDashboard() {
       </motion.div>
 
       {/* Tool Breakdown */}
-      <h3 style={{ fontSize: 18, fontWeight: 700, color: "rgba(255,255,255,0.8)", marginBottom: 16, paddingLeft: 4 }}>
+      <h3 style={{ fontSize: 18, fontWeight: 700, color: "rgba(15,23,42,0.8)", marginBottom: 16, paddingLeft: 4 }}>
         Per-Tool Breakdown
       </h3>
       <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
@@ -381,7 +381,7 @@ export default function ResultsDashboard() {
                       Cancel
                     </button>
                   </div>
-                  <p style={{ fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 12, textAlign: "center" }}>
+                  <p style={{ fontSize: 11, color: "rgba(15,23,42,0.3)", marginTop: 12, textAlign: "center" }}>
                     🔒 3,247 founders already did this · Zero spam guarantee
                   </p>
                 </>

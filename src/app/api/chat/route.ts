@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { message, history = [], formContext } = body;
+    const { message, history = [], formContext, selectedAI = "claude-sonnet-4-20250514" } = body;
 
     if (!message || typeof message !== "string") {
       return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -56,7 +56,7 @@ Be concise (max 3-4 sentences unless comparing tools). Use emojis sparingly. Be 
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: selectedAI,
         max_tokens: 300,
         system: systemPrompt,
         messages,

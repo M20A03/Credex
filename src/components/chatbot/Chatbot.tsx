@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import AISelector from "@/components/chatbot/AISelector";
+import { useAuditStore } from "@/store/auditStore";
 
 type Message = {
   id: string;
@@ -60,6 +62,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
   const [showEmailCapture, setShowEmailCapture] = useState(false);
   const [email, setEmail] = useState("");
   const [proactiveSent, setProactiveSent] = useState(false);
+  const selectedAI = useAuditStore((s) => s.selectedAI);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const proactiveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -181,6 +184,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
               content: m.content,
             })),
             formContext,
+            selectedAI,
           }),
         });
 
@@ -248,18 +252,18 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             position: "fixed",
             bottom: 104,
             right: 28,
-            background: "rgba(15, 23, 42, 0.95)",
+            background: "rgba(255, 255, 255, 0.95)",
             backdropFilter: "blur(16px)",
-            border: "1px solid rgba(109,40,217,0.3)",
+            border: "1px solid rgba(109,40,217,0.2)",
             borderRadius: 12,
             padding: "10px 16px",
-            color: "rgba(255,255,255,0.9)",
+            color: "rgba(15,23,42,0.85)",
             fontSize: 13,
             fontWeight: 500,
             zIndex: 8999,
             maxWidth: 220,
             cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(0,0,0,0.4)",
+            boxShadow: "0 8px 32px rgba(15,23,42,0.1)",
           }}
           onClick={() => {
             setIsOpen(true);
@@ -310,7 +314,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                 🤖
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "rgba(255,255,255,0.95)" }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: "rgba(15,23,42,0.9)" }}>
                   Saver AI
                 </div>
                 <div style={{ fontSize: 11, color: "#10B981", display: "flex", alignItems: "center", gap: 4 }}>
@@ -326,6 +330,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                   Online · by Credex
                 </div>
               </div>
+              <AISelector />
               <div style={{ display: "flex", gap: 8 }}>
                 <button
                   onClick={clearHistory}
@@ -333,7 +338,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                   style={{
                     background: "none",
                     border: "none",
-                    color: "rgba(255,255,255,0.4)",
+                    color: "rgba(15,23,42,0.4)",
                     cursor: "pointer",
                     fontSize: 16,
                     padding: 4,
@@ -347,7 +352,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                   style={{
                     background: "none",
                     border: "none",
-                    color: "rgba(255,255,255,0.6)",
+                    color: "rgba(15,23,42,0.5)",
                     cursor: "pointer",
                     fontSize: 18,
                     padding: 4,
@@ -378,7 +383,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                   <span
                     style={{
                       fontSize: 10,
-                      color: "rgba(255,255,255,0.3)",
+                      color: "rgba(15,23,42,0.3)",
                       marginTop: 2,
                       alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
                       padding: "0 4px",
