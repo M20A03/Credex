@@ -6,6 +6,8 @@ import CustomCursor from "@/components/effects/CustomCursor";
 import Chatbot from "@/components/chatbot/Chatbot";
 import SpendForm from "@/components/form/SpendForm";
 import ResultsDashboard from "@/components/results/ResultsDashboard";
+import ToastContainer from "@/components/ToastContainer";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useAuditStore } from "@/store/auditStore";
 
 const HERO_TOOLS = [
@@ -45,8 +47,14 @@ export default function HomePage() {
   if (!mounted) return null;
 
   return (
-    <main style={{ position: "relative", minHeight: "100vh" }}>
-      <CustomCursor />
+    <ErrorBoundary
+      onError={(error) => {
+        console.error("Page error:", error);
+      }}
+    >
+      <main style={{ position: "relative", minHeight: "100vh" }}>
+        <CustomCursor />
+        <ToastContainer />
 
       {/* ── HERO SECTION ── */}
       <AnimatePresence>
@@ -287,6 +295,7 @@ export default function HomePage() {
 
       {/* ── CHATBOT ── */}
       <Chatbot />
-    </main>
+      </main>
+    </ErrorBoundary>
   );
 }

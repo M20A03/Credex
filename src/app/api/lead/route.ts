@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 // Simple in-memory rate limiting (would use Redis in production)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
+// Email validation regex
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -14,8 +17,41 @@ export async function POST(req: NextRequest) {
 
     const { email, company, role, teamSize, source } = body;
 
-    if (!email || typeof email !== "string" || !email.includes("@")) {
-      return NextResponse.json({ error: "Valid email is required" }, { status: 400 });
+    if (!email || typeof email !== "string" || !EMAIL_REGEX.test(email)) {
+      return NextResponse.json(
+        { error: "Valid email is required" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email length
+    if (email.length > 255) {
+      return NextResponse.json(
+        { error: "Email is too long" },
+        { status: 400 }
+      );
+    }
+
+    // Validate other fields
+    if (company && (typeof company !== "string" || company.length > 255)) {
+      return NextResponse.json(
+        { error: "Company name is too long" },
+        { status: 400 }
+      );
+    }
+
+    if (role && (typeof role !== "string" || role.length > 100)) {
+      return NextResponse.json(
+        { error: "Role is too long" },
+        { status: 400 }
+      );
+    }
+
+    if (teamSize && (typeof teamSize !== "number" || teamSize < 1 || teamSize > 10000)) {
+      return NextResponse.json(
+        { error: "Invalid team size" },
+        { status: 400 }
+      );
     }
 
     // Rate limit: 5 per hour per IP
@@ -61,9 +97,11 @@ export async function POST(req: NextRequest) {
             source: source || "audit",
             created_at: new Date().toISOString(),
           }),
+          signal: AbortSignal.timeout(10000), // 10 second timeout
         });
       } catch (e) {
         console.error("Supabase lead storage error:", e);
+        // Continue even if Supabase fails - don't block the user
       }
     } else {
       // Log to console in dev
@@ -96,15 +134,21 @@ export async function POST(req: NextRequest) {
               </div>
             `,
           }),
+          signal: AbortSignal.timeout(10000), // 10 second timeout
         });
       } catch (e) {
         console.error("Resend email error:", e);
+        // Continue even if Resend fails
       }
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Lead API error:", error);
-    return NextResponse.json({ error: "Failed to capture lead" }, { status: 500 });
+    const errorMessage = error instanceof SyntaxError ? "Invalid JSON format" : "Failed to capture lead";
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: error instanceof SyntaxError ? 400 : 500 }
+    );
   }
 }

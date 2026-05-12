@@ -186,17 +186,32 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             formContext,
             selectedAI,
           }),
+          signal: AbortSignal.timeout(15000), // 15 second timeout
         });
 
-        if (!res.ok) throw new Error("API failed");
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+        
         const data = await res.json();
         setIsTyping(false);
-        addMessage("bot", data.message || "I couldn't process that. Try asking something else!");
-      } catch {
+        
+        if (data.message) {
+          addMessage("bot", data.message);
+        } else {
+          throw new Error("No message in response");
+        }
+      } catch (error) {
         setIsTyping(false);
+        console.error("Chat error:", error);
+        
+        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        
         addMessage(
           "bot",
-          "💡 Great question! For detailed guidance, try asking: 'How do savings work?', 'Compare Cursor vs Copilot', or 'Show me an example audit'. I'm here to help!"
+          errorMessage.includes("timeout") || errorMessage.includes("API error")
+            ? "💡 I'm having connection issues. Try asking: 'How do savings work?', 'Compare Cursor vs Copilot', or 'Show me an example audit'."
+            : "💡 Great question! For detailed guidance, try asking: 'How do savings work?', 'Compare Cursor vs Copilot', or 'Show me an example audit'. I'm here to help!"
         );
       }
     },
@@ -205,6 +220,13 @@ export default function Chatbot({ formContext }: ChatbotProps) {
 
   const handleEmailSubmit = async () => {
     if (!email.trim()) return;
+    
+    // Validate email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      addMessage("bot", "⚠️ Please enter a valid email address.");
+      return;
+    }
+    
     addMessage("user", email);
     setShowEmailCapture(false);
     setIsTyping(true);
@@ -222,9 +244,11 @@ export default function Chatbot({ formContext }: ChatbotProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, source: "chatbot" }),
+        signal: AbortSignal.timeout(10000),
       });
-    } catch {
-      // silent fail
+    } catch (error) {
+      console.warn("Lead capture failed:", error);
+      // silent fail - don't interrupt user experience
     }
   };
 

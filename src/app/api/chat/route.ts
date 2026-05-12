@@ -5,9 +5,23 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { message, history = [], formContext, selectedAI = "claude-sonnet-4-20250514" } = body;
 
-    if (!message || typeof message !== "string") {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    if (!message || typeof message !== "string" || message.trim().length === 0) {
+      return NextResponse.json(
+        { error: "Invalid message: message is required and must be non-empty" },
+        { status: 400 }
+      );
     }
+
+    // Validate message length
+    if (message.length > 5000) {
+      return NextResponse.json(
+        { error: "Message is too long (max 5000 characters)" },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize message
+    const sanitizedMessage = message.trim().substring(0, 5000);
 
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (!apiKey) {
@@ -45,7 +59,7 @@ Be concise (max 3-4 sentences unless comparing tools). Use emojis sparingly. Be 
 
     const messages = [
       ...history.slice(-6),
-      { role: "user", content: message },
+      { role: "user" as const, content: sanitizedMessage },
     ];
 
     const response = await fetch("https://api.anthropic.com/v1/messages", {
@@ -61,9 +75,12 @@ Be concise (max 3-4 sentences unless comparing tools). Use emojis sparingly. Be 
         system: systemPrompt,
         messages,
       }),
+      signal: AbortSignal.timeout(30000), // 30 second timeout
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Anthropic API error (${response.status}):`, errorText);
       throw new Error(`Anthropic API error: ${response.status}`);
     }
 
@@ -74,9 +91,15 @@ Be concise (max 3-4 sentences unless comparing tools). Use emojis sparingly. Be 
     return NextResponse.json({ message: aiMessage });
   } catch (error) {
     console.error("Chat API error:", error);
-    return NextResponse.json({
-      message: "💡 I'm having trouble connecting right now. Try these popular questions: 'How do savings work?', 'Compare Cursor vs Copilot', or 'What's the catch?'",
-    });
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    
+    return NextResponse.json(
+      {
+        message: "💡 I'm having trouble connecting right now. Try these popular questions: 'How do savings work?', 'Compare Cursor vs Copilot', or 'What's the catch?'",
+        error: errorMessage,
+      },
+      { status: 500 }
+    );
   }
 }
 

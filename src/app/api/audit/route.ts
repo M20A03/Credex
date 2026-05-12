@@ -13,6 +13,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate team size
+    if (!body.teamSize || body.teamSize < 1 || body.teamSize > 10000) {
+      return NextResponse.json(
+        { error: "Team size must be between 1 and 10000" },
+        { status: 400 }
+      );
+    }
+
+    // Validate use case
+    const validUseCases = ["coding", "writing", "research", "mixed"];
+    if (!validUseCases.includes(body.useCase)) {
+      return NextResponse.json(
+        { error: "Invalid use case" },
+        { status: 400 }
+      );
+    }
+
+    // Validate email format if provided
+    if (body.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
+      return NextResponse.json(
+        { error: "Invalid email format" },
+        { status: 400 }
+      );
+    }
+
     // Run the audit engine
     const result = runAudit(body);
 
@@ -49,6 +74,7 @@ Write as if talking directly to the founder. Start with the key insight, mention
             max_tokens: 200,
             messages: [{ role: "user", content: prompt }],
           }),
+          signal: AbortSignal.timeout(30000), // 30 second timeout
         });
 
         if (response.ok) {
@@ -57,6 +83,8 @@ Write as if talking directly to the founder. Start with the key insight, mention
           if (aiText) {
             result.summaryText = aiText;
           }
+        } else {
+          console.warn("Claude API non-200 response:", response.status);
         }
       } catch (e) {
         console.error("Claude summary error:", e);
@@ -70,9 +98,10 @@ Write as if talking directly to the founder. Start with the key insight, mention
     return NextResponse.json(result);
   } catch (error) {
     console.error("Audit API error:", error);
+    const errorMessage = error instanceof SyntaxError ? "Invalid JSON format" : "Failed to process audit";
     return NextResponse.json(
-      { error: "Failed to process audit" },
-      { status: 500 }
+      { error: errorMessage },
+      { status: error instanceof SyntaxError ? 400 : 500 }
     );
   }
 }

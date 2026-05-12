@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuditStore } from "@/store/auditStore";
+import { useToastStore } from "@/lib/toast-store";
 import { TOOLS } from "@/lib/pricing-data";
 import { formatINR } from "@/lib/currency";
 
@@ -11,11 +12,39 @@ export default function SpendForm() {
     tools, teamSize, useCase, email, company,
     addTool, updateTool, removeTool,
     setTeamSize, setUseCase, setEmail, setCompany,
-    setStep, setResult, setIsLoading,
+    setStep, setResult, setIsLoading, isLoading,
     getFormData,
   } = useAuditStore();
 
-  const [errors, setErrors] = useState<string[]>([]);
+  const { addToast } = useToastStore();
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const validateForm = (): boolean => {
+    const errors: Record<string, string> = {};
+
+    if (tools.length === 0) {
+      errors.tools = "Please add at least one AI tool to audit.";
+    }
+
+    if (!teamSize || teamSize < 1 || teamSize > 10000) {
+      errors.teamSize = "Team size must be between 1 and 10,000.";
+    }
+
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      errors.email = "Please enter a valid email address.";
+    }
+
+    if (email && email.length > 255) {
+      errors.email = "Email is too long.";
+    }
+
+    if (company && company.length > 255) {
+      errors.company = "Company name is too long.";
+    }
+
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleAddTool = () => {
     const unusedTool = TOOLS.find((t) => !tools.some((u) => u.toolId === t.id));
@@ -26,15 +55,23 @@ export default function SpendForm() {
         seats: 1,
         monthlySpend: 0,
       });
+    } else {
+      addToast({
+        type: "info",
+        message: "All tools are already added to your audit.",
+      });
     }
   };
 
   const handleSubmit = async () => {
-    if (tools.length === 0) {
-      setErrors(["Please add at least one AI tool to audit."]);
+    if (!validateForm()) {
+      addToast({
+        type: "error",
+        message: "Please fix the errors below before submitting.",
+      });
       return;
     }
-    setErrors([]);
+
     setStep("processing");
     setIsLoading(true);
 
@@ -44,24 +81,45 @@ export default function SpendForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
+        signal: AbortSignal.timeout(30000), // 30 second timeout
       });
 
-      if (!res.ok) throw new Error("Audit failed");
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Audit failed");
+      }
+
       const result = await res.json();
       setResult(result);
 
       // Capture lead if email provided
       if (email) {
-        await fetch("/api/lead", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, company, source: "form" }),
-        }).catch(() => {});
+        try {
+          await fetch("/api/lead", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, company, source: "form" }),
+            signal: AbortSignal.timeout(10000),
+          });
+        } catch (e) {
+          console.warn("Lead capture failed:", e);
+          // Don't fail the audit if lead capture fails
+        }
       }
 
+      addToast({
+        type: "success",
+        message: "✨ Your audit is ready! Check your results below.",
+      });
       setStep("results");
-    } catch {
-      setErrors(["Something went wrong. Please try again."]);
+    } catch (error) {
+      console.error("Audit error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to process audit";
+      addToast({
+        type: "error",
+        message: errorMessage,
+        duration: 5000,
+      });
       setStep("form");
     } finally {
       setIsLoading(false);
@@ -69,13 +127,13 @@ export default function SpendForm() {
   };
 
   return (
-    <div style={{ maxWidth: 780, margin: "0 auto" }}>
+    <div style={{ maxWidth: 780, margin: "0 auto", opacity: isLoading ? 0.5 : 1 }}>
       {/* Section: Team basics */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="glass"
-        style={{ borderRadius: 20, padding: 32, marginBottom: 20 }}
+        style={{ borderRadius: 20, padding: 32, marginBottom: 20, pointerEvents: isLoading ? "none" : "auto" }}
       >
         <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24, color: "rgba(15,23,42,0.9)" }}>
           👥 Your Team
@@ -86,12 +144,19 @@ export default function SpendForm() {
             <input
               type="number"
               min={1}
-              max={1000}
+              max={10000}
               value={teamSize}
               onChange={(e) => setTeamSize(Number(e.target.value))}
-              className="form-input"
+              className={`form-input ${fieldErrors.teamSize ? "error" : ""}`}
               placeholder="e.g. 5"
+              disabled={isLoading}
+              aria-describedby={fieldErrors.teamSize ? "teamSize-error" : undefined}
             />
+            {fieldErrors.teamSize && (
+              <p id="teamSize-error" style={{ fontSize: 12, color: "#FCA5A5", marginTop: 4 }}>
+                {fieldErrors.teamSize}
+              </p>
+            )}
           </div>
           <div>
             <label className="form-label">Primary Use Case</label>
@@ -99,6 +164,7 @@ export default function SpendForm() {
               value={useCase}
               onChange={(e) => setUseCase(e.target.value as "coding" | "writing" | "research" | "mixed")}
               className="form-select"
+              disabled={isLoading}
             >
               <option value="coding">💻 Coding / Engineering</option>
               <option value="writing">✍️ Writing / Marketing</option>
@@ -115,7 +181,7 @@ export default function SpendForm() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         className="glass"
-        style={{ borderRadius: 20, padding: 32, marginBottom: 20 }}
+        style={{ borderRadius: 20, padding: 32, marginBottom: 20, pointerEvents: isLoading ? "none" : "auto" }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
           <h2 style={{ fontSize: 20, fontWeight: 700, color: "rgba(15,23,42,0.9)" }}>
@@ -125,7 +191,7 @@ export default function SpendForm() {
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             onClick={handleAddTool}
-            disabled={tools.length >= TOOLS.length}
+            disabled={tools.length >= TOOLS.length || isLoading}
             style={{
               background: "rgba(109,40,217,0.08)",
               border: "1px solid rgba(109,40,217,0.4)",
@@ -134,7 +200,8 @@ export default function SpendForm() {
               padding: "8px 16px",
               fontSize: 13,
               fontWeight: 600,
-              cursor: "pointer",
+              cursor: tools.length >= TOOLS.length || isLoading ? "not-allowed" : "pointer",
+              opacity: tools.length >= TOOLS.length || isLoading ? 0.5 : 1,
               display: "flex",
               alignItems: "center",
               gap: 6,
@@ -144,8 +211,22 @@ export default function SpendForm() {
           </motion.button>
         </div>
 
+        {fieldErrors.tools && (
+          <div style={{
+            background: "rgba(239,68,68,0.1)",
+            border: "1px solid rgba(239,68,68,0.3)",
+            borderRadius: 10,
+            padding: "12px 16px",
+            marginBottom: 16,
+            color: "#FCA5A5",
+            fontSize: 14,
+          }}>
+            ⚠️ {fieldErrors.tools}
+          </div>
+        )}
+
         <AnimatePresence>
-          {tools.length === 0 && (
+          {tools.length === 0 && !fieldErrors.tools && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -283,9 +364,9 @@ export default function SpendForm() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="glass"
-        style={{ borderRadius: 20, padding: 32, marginBottom: 20 }}
+        style={{ borderRadius: 20, padding: 32, marginBottom: 20, pointerEvents: isLoading ? "none" : "auto" }}
       >
-        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6, color: "rgba(255,255,255,0.9)" }}>
+        <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6, color: "rgba(15,23,42,0.9)" }}>
           📧 Get Results via Email <span style={{ fontSize: 14, fontWeight: 400, color: "rgba(15,23,42,0.4)" }}>(optional)</span>
         </h2>
         <p style={{ fontSize: 13, color: "rgba(15,23,42,0.4)", marginBottom: 20 }}>
@@ -299,8 +380,15 @@ export default function SpendForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@startup.com"
-              className="form-input"
+              className={`form-input ${fieldErrors.email ? "error" : ""}`}
+              disabled={isLoading}
+              aria-describedby={fieldErrors.email ? "email-error" : undefined}
             />
+            {fieldErrors.email && (
+              <p id="email-error" style={{ fontSize: 12, color: "#FCA5A5", marginTop: 4 }}>
+                {fieldErrors.email}
+              </p>
+            )}
           </div>
           <div>
             <label className="form-label">Company (optional)</label>
@@ -309,45 +397,38 @@ export default function SpendForm() {
               value={company}
               onChange={(e) => setCompany(e.target.value)}
               placeholder="Acme Inc."
-              className="form-input"
+              className={`form-input ${fieldErrors.company ? "error" : ""}`}
+              disabled={isLoading}
+              aria-describedby={fieldErrors.company ? "company-error" : undefined}
             />
+            {fieldErrors.company && (
+              <p id="company-error" style={{ fontSize: 12, color: "#FCA5A5", marginTop: 4 }}>
+                {fieldErrors.company}
+              </p>
+            )}
           </div>
         </div>
         {/* Honeypot */}
         <input type="text" name="website" style={{ display: "none" }} tabIndex={-1} aria-hidden />
       </motion.div>
 
-      {/* Errors */}
-      <AnimatePresence>
-        {errors.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            style={{
-              background: "rgba(239,68,68,0.1)",
-              border: "1px solid rgba(239,68,68,0.3)",
-              borderRadius: 12,
-              padding: "12px 16px",
-              marginBottom: 16,
-              color: "#FCA5A5",
-              fontSize: 14,
-            }}
-          >
-            {errors.map((e) => <p key={e}>⚠️ {e}</p>)}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Submit */}
       <motion.button
-        whileHover={{ scale: 1.02, y: -2 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={{ scale: isLoading ? 1 : 1.02, y: isLoading ? 0 : -2 }}
+        whileTap={{ scale: isLoading ? 1 : 0.98 }}
         onClick={handleSubmit}
+        disabled={isLoading}
         className="btn-primary rotating-border"
-        style={{ width: "100%", fontSize: 17, padding: "18px 32px", borderRadius: 14 }}
+        style={{
+          width: "100%",
+          fontSize: 17,
+          padding: "18px 32px",
+          borderRadius: 14,
+          opacity: isLoading ? 0.7 : 1,
+          cursor: isLoading ? "wait" : "pointer",
+        }}
       >
-        ✦ Run My Free AI Spend Audit →
+        {isLoading ? "⏳ Processing Your Audit..." : "✦ Run My Free AI Spend Audit →"}
       </motion.button>
     </div>
   );
