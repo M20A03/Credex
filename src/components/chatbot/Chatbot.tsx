@@ -257,7 +257,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             border: "1px solid rgba(109,40,217,0.2)",
             borderRadius: 12,
             padding: "10px 16px",
-            color: "rgba(15,23,42,0.85)",
+            color: "#0F172A",
             fontSize: 13,
             fontWeight: 500,
             zIndex: 8999,
@@ -291,11 +291,11 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             <div
               style={{
                 padding: "16px 20px",
-                borderBottom: "1px solid rgba(255,255,255,0.08)",
+                borderBottom: "1px solid rgba(109,40,217,0.1)",
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                background: "rgba(109,40,217,0.1)",
+                background: "linear-gradient(135deg, rgba(109,40,217,0.08), rgba(37,99,235,0.06))",
               }}
             >
               <div
@@ -314,7 +314,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                 🤖
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "rgba(15,23,42,0.9)" }}>
+                <div style={{ fontWeight: 700, fontSize: 15, color: "#0F172A" }}>
                   Saver AI
                 </div>
                 <div style={{ fontSize: 11, color: "#10B981", display: "flex", alignItems: "center", gap: 4 }}>
@@ -454,10 +454,10 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             <div
               style={{
                 padding: "12px 16px",
-                borderTop: "1px solid rgba(255,255,255,0.08)",
+                borderTop: "1px solid rgba(109,40,217,0.1)",
                 display: "flex",
                 gap: 8,
-                background: "rgba(0,0,0,0.2)",
+                background: "rgba(255,255,255,0.9)",
               }}
             >
               <input

@@ -9,11 +9,11 @@ import ResultsDashboard from "@/components/results/ResultsDashboard";
 import { useAuditStore } from "@/store/auditStore";
 
 const HERO_TOOLS = [
-  { icon: "🖱️", name: "Cursor", color: "#6D28D9" },
+  { icon: "✍️", name: "Cursor", color: "#6D28D9" },
   { icon: "🐙", name: "Copilot", color: "#2563EB" },
-  { icon: "🤖", name: "Claude", color: "#D97706" },
+  { icon: "🧠", name: "Claude", color: "#D97706" },
   { icon: "💬", name: "ChatGPT", color: "#10B981" },
-  { icon: "✨", name: "Gemini", color: "#06B6D4" },
+  { icon: "🪐", name: "Gemini", color: "#06B6D4" },
   { icon: "🌊", name: "Windsurf", color: "#059669" },
 ];
 
@@ -160,13 +160,14 @@ export default function HomePage() {
                     display: "flex",
                     alignItems: "center",
                     gap: 6,
-                    background: "rgba(255,255,255,0.04)",
-                    border: `1px solid ${tool.color}40`,
+                    background: "rgba(255,255,255,0.85)",
+                    border: `1px solid ${tool.color}35`,
                     borderRadius: 10,
                     padding: "6px 12px",
                     fontSize: 13,
-                    color: "rgba(15,23,42,0.45)",
+                    color: "rgba(15,23,42,0.75)",
                     cursor: "default",
+                    boxShadow: "0 2px 8px rgba(15,23,42,0.05)",
                   }}
                 >
                   <span style={{ fontSize: 18 }}>{tool.icon}</span>
@@ -180,7 +181,7 @@ export default function HomePage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 0.5 }}
               transition={{ delay: 1.4 }}
-              style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginTop: 8 }}
+              style={{ fontSize: 13, color: "rgba(15,23,42,0.45)", marginTop: 8 }}
             >
               3,247 founders audited this week · Prices at ₹85/USD
             </motion.p>
@@ -248,7 +249,7 @@ export default function HomePage() {
                 <h2 style={{ fontSize: 28, fontWeight: 700, marginBottom: 8 }}>
                   Analysing your AI stack...
                 </h2>
-                <p style={{ color: "rgba(255,255,255,0.5)", fontSize: 16 }}>
+                <p style={{ color: "rgba(15,23,42,0.5)", fontSize: 16 }}>
                   Checking for potential savings across your tools
                 </p>
               </div>
