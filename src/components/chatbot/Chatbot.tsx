@@ -62,7 +62,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
   const [proactiveSent, setProactiveSent] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const proactiveTimer = useRef<ReturnType<typeof setTimeout>>();
+  const proactiveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // Load chat history from localStorage
   useEffect(() => {

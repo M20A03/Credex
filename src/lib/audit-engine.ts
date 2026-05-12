@@ -75,7 +75,7 @@ export function runAudit(formData: AuditFormData): AuditResult {
       (p) => p.pricePerSeat < currentPlan.pricePerSeat && p.pricePerSeat > 0
     );
 
-    if (cheaperPlans.length > 0 && input.seats <= 3 && input.teamSize <= 5) {
+    if (cheaperPlans.length > 0 && input.seats <= 3 && formData.teamSize <= 5) {
       // Small team may not need enterprise/business tiers
       const betterPlan = cheaperPlans[cheaperPlans.length - 1];
       if (betterPlan.pricePerSeat < currentPlan.pricePerSeat * 0.75) {
@@ -96,7 +96,7 @@ export function runAudit(formData: AuditFormData): AuditResult {
 
     // Rule 3: Check if free tier might suffice
     const freePlan = tool.plans.find((p) => p.id === 'free');
-    if (freePlan && currentPlan.pricePerSeat > 0 && input.seats === 1 && input.teamSize === 1) {
+    if (freePlan && currentPlan.pricePerSeat > 0 && input.seats === 1 && formData.teamSize === 1) {
       if (bestPlan.id === currentPlan.id) {
         recommendationReason = `Solo user may get started with the Free tier to evaluate fit before committing to ${formatINR(currentPlan.pricePerSeat)}/mo.`;
         bestPlan = freePlan;
