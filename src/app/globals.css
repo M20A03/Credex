@@ -1,6 +1,6 @@
 /* ==========================================================================
    CREDEX ENTERPRISE DESIGN SYSTEM & CYBER-FINTECH AESTHETIC
-   Liquid Luxury · Dark-First Architecture · WCAG 2.1 AA Compliant
+   Liquid Luxury · Dark-First Architecture · WCAG 2.1 AA Compliant · Mobile-First
    ========================================================================== */
 
 :root {
@@ -154,6 +154,7 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -161,6 +162,7 @@ body {
   background-color: var(--bg-deep);
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100dvh;
   overflow-x: hidden;
   transition: background-color 0.25s ease, color 0.25s ease;
   background-image: 
@@ -168,6 +170,18 @@ body {
     linear-gradient(to right, var(--cyber-grid) 1px, transparent 1px),
     linear-gradient(to bottom, var(--cyber-grid) 1px, transparent 1px);
   background-size: 100% 100%, 48px 48px, 48px 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* iOS Safari auto-zoom prevention: inputs must have min 16px on mobile */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+button, a, input, select {
+  touch-action: manipulation;
 }
 
 /* Accessible focus ring */
@@ -241,6 +255,16 @@ body {
   33% { transform: translate(40px, -60px) scale(1.06); }
   66% { transform: translate(-30px, 40px) scale(0.95); }
   100% { transform: translate(25px, -20px) scale(1.04); }
+}
+
+@media (max-width: 768px) {
+  .blob {
+    filter: blur(70px);
+  }
+  .blob-1 { width: 320px; height: 320px; }
+  .blob-2 { width: 280px; height: 280px; }
+  .blob-3 { width: 240px; height: 240px; }
+  .blob-4 { width: 200px; height: 200px; }
 }
 
 /* ==========================================================================
@@ -384,13 +408,14 @@ input[type="range"] {
   border-radius: var(--radius-full);
   background: var(--accent-subtle);
   outline: none;
+  touch-action: pan-y;
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: var(--accent-primary);
   border: 2px solid #FFFFFF;
@@ -399,8 +424,46 @@ input[type="range"]::-webkit-slider-thumb {
   transition: transform 0.15s ease, background 0.15s ease;
 }
 
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(1.2);
+}
+
+/* ==========================================================================
+   CUSTOM CURSOR (DESKTOP ONLY)
+   ========================================================================== */
+#cursor-dot,
+#cursor-ring {
+  display: none;
+  pointer-events: none;
+  position: fixed;
+  z-index: 99998;
+}
+
+@media (min-width: 1025px) and (pointer: fine) {
+  #cursor-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    transform: translate(-50%, -50%);
+  }
+
+  #cursor-ring {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1.5px solid var(--accent-primary);
+    transform: translate(-50%, -50%);
+    transition: width 0.2s ease, height 0.2s ease, border-color 0.2s ease;
+  }
+
+  #cursor-ring.hovering {
+    width: 48px;
+    height: 48px;
+    border-color: var(--accent-cyan);
+    background: var(--accent-subtle);
+  }
 }
 
 /* ==========================================================================

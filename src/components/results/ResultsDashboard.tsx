@@ -154,7 +154,7 @@ export default function ResultsDashboard() {
         className="glass-elevated"
         style={{
           borderRadius: "var(--radius-xl)",
-          padding: "32px 36px",
+          padding: "clamp(20px, 4vw, 36px) clamp(14px, 3.5vw, 36px)",
           textAlign: "center",
           position: "relative",
           overflow: "hidden",
@@ -177,89 +177,89 @@ export default function ResultsDashboard() {
           style={{
             display: "inline-flex",
             alignItems: "center",
-            gap: "8px",
-            padding: "6px 16px",
+            gap: "6px",
+            padding: "5px 14px",
             borderRadius: "var(--radius-full)",
             background: "var(--status-success-bg)",
             border: "1px solid var(--status-success-border)",
             color: "var(--status-success)",
-            fontSize: "var(--text-xs)",
+            fontSize: "clamp(10px, 2.5vw, 12px)",
             fontWeight: 800,
             letterSpacing: "0.04em",
-            marginBottom: "16px",
+            marginBottom: "14px",
           }}
         >
-          <span>✨</span> AUDIT OPTIMIZATION ANALYSIS COMPLETE
+          <span>✨</span> AUDIT COMPLETE
         </div>
 
-        <h1 style={{ fontSize: "clamp(2rem, 4vw, 3.2rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: "8px" }}>
+        <h1 style={{ fontSize: "clamp(1.5rem, 5.2vw, 3.2rem)", fontWeight: 900, lineHeight: 1.15, marginBottom: "8px" }}>
           Potential Annual Savings:{" "}
           <span className="gradient-text-savings">{formatCurrencyShort(totalAnnualSavings, currency)}</span>
         </h1>
 
-        <p style={{ fontSize: "var(--text-base)", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 auto 24px" }}>
+        <p style={{ fontSize: "clamp(13px, 2.8vw, 16px)", color: "var(--text-secondary)", maxWidth: "680px", margin: "0 auto 20px" }}>
           {summaryText}
         </p>
 
-        {/* 4 Stat Cards */}
+        {/* 4 Stat Cards (2x2 on phones, 4x1 on desktop) */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
-            gap: "16px",
-            marginTop: "24px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
+            gap: "10px",
+            marginTop: "20px",
           }}
         >
           <div
             className="glass"
-            style={{ padding: "18px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
+            style={{ padding: "14px 10px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
           >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
               Monthly Savings
             </div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: 900, color: "var(--status-success)", marginTop: "4px" }}>
+            <div style={{ fontSize: "clamp(16px, 3.5vw, 22px)", fontWeight: 900, color: "var(--status-success)", marginTop: "4px" }}>
               {formatCurrency(totalMonthlySavings, currency)}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>/ month recovered</div>
+            <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>/ mo recovered</div>
           </div>
 
           <div
             className="glass"
-            style={{ padding: "18px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
+            style={{ padding: "14px 10px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
           >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
               Savings ROI
             </div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: 900, color: "var(--accent-primary)", marginTop: "4px" }}>
+            <div style={{ fontSize: "clamp(16px, 3.5vw, 22px)", fontWeight: 900, color: "var(--accent-primary)", marginTop: "4px" }}>
               {savingsPercentage}%
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>of AI budget saved</div>
+            <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>budget saved</div>
           </div>
 
           <div
             className="glass"
-            style={{ padding: "18px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
+            style={{ padding: "14px 10px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
           >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
               Current Spend
             </div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: 800, color: "var(--text-primary)", marginTop: "4px" }}>
+            <div style={{ fontSize: "clamp(16px, 3.5vw, 22px)", fontWeight: 800, color: "var(--text-primary)", marginTop: "4px" }}>
               {formatCurrency(totalCurrentMonthly, currency)}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>/ month across stack</div>
+            <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>/ mo before</div>
           </div>
 
           <div
             className="glass"
-            style={{ padding: "18px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
+            style={{ padding: "14px 10px", borderRadius: "var(--radius-lg)", border: "1px solid var(--border-subtle)" }}
           >
-            <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
+            <div style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
               Optimized Spend
             </div>
-            <div style={{ fontSize: "var(--text-2xl)", fontWeight: 800, color: "var(--accent-cyan)", marginTop: "4px" }}>
+            <div style={{ fontSize: "clamp(16px, 3.5vw, 22px)", fontWeight: 800, color: "var(--accent-cyan)", marginTop: "4px" }}>
               {formatCurrency(totalOptimizedMonthly, currency)}
             </div>
-            <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>/ month after right-sizing</div>
+            <div style={{ fontSize: "10px", color: "var(--text-muted)", marginTop: "2px" }}>/ mo target</div>
           </div>
         </div>
 
@@ -268,9 +268,9 @@ export default function ResultsDashboard() {
           style={{
             display: "flex",
             flexWrap: "wrap",
-            gap: "12px",
+            gap: "8px",
             justifyContent: "center",
-            marginTop: "28px",
+            marginTop: "24px",
           }}
         >
           <button
@@ -278,21 +278,21 @@ export default function ResultsDashboard() {
             type="button"
             className="rotating-border"
             style={{
-              padding: "12px 24px",
+              padding: "10px 18px",
               borderRadius: "var(--radius-full)",
               background: "var(--luxury-gradient)",
               color: "#FFFFFF",
               fontWeight: 800,
-              fontSize: "var(--text-sm)",
+              fontSize: "13px",
               border: "none",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              gap: "6px",
             }}
           >
             <span>📧</span>
-            <span>Email Me PDF Executive Memo</span>
+            <span>Get PDF Memo</span>
           </button>
 
           <button
@@ -300,20 +300,20 @@ export default function ResultsDashboard() {
             type="button"
             className="glass"
             style={{
-              padding: "12px 20px",
+              padding: "10px 16px",
               borderRadius: "var(--radius-full)",
               color: "var(--text-primary)",
               fontWeight: 700,
-              fontSize: "var(--text-sm)",
+              fontSize: "13px",
               border: "1px solid var(--border-strong)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              gap: "6px",
             }}
           >
             <span>🖨️</span>
-            <span>Print / Save PDF</span>
+            <span>Print PDF</span>
           </button>
 
           <button
@@ -321,20 +321,20 @@ export default function ResultsDashboard() {
             type="button"
             className="glass"
             style={{
-              padding: "12px 20px",
+              padding: "10px 16px",
               borderRadius: "var(--radius-full)",
               color: "var(--text-primary)",
               fontWeight: 700,
-              fontSize: "var(--text-sm)",
+              fontSize: "13px",
               border: "1px solid var(--border-strong)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
-              gap: "8px",
+              gap: "6px",
             }}
           >
             <span>🔗</span>
-            <span>Copy Share Link</span>
+            <span>Share Link</span>
           </button>
 
           <button
@@ -342,11 +342,11 @@ export default function ResultsDashboard() {
             type="button"
             className="glass"
             style={{
-              padding: "12px 20px",
+              padding: "10px 16px",
               borderRadius: "var(--radius-full)",
               color: "var(--text-muted)",
               fontWeight: 700,
-              fontSize: "var(--text-sm)",
+              fontSize: "13px",
               border: "1px solid var(--border-subtle)",
               cursor: "pointer",
             }}
@@ -364,9 +364,9 @@ export default function ResultsDashboard() {
           transition={{ delay: 0.2 }}
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-            gap: "20px",
-            marginTop: "28px",
+            gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+            gap: "16px",
+            marginTop: "20px",
           }}
         >
           {/* Spend Breakdown Donut */}
@@ -374,27 +374,27 @@ export default function ResultsDashboard() {
             className="glass"
             style={{
               borderRadius: "var(--radius-xl)",
-              padding: "24px",
+              padding: "clamp(16px, 3vw, 24px)",
               display: "flex",
               flexDirection: "column",
             }}
           >
-            <h3 style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "var(--text-primary)", marginBottom: "4px" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "4px" }}>
               Spend Allocation by Tool
             </h3>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: "16px" }}>
+            <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "14px" }}>
               Where your engineering budget currently flows
             </p>
 
-            <div style={{ height: "240px", width: "100%" }}>
+            <div style={{ height: "220px", width: "100%" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={pieData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={55}
-                    outerRadius={85}
+                    innerRadius={50}
+                    outerRadius={80}
                     paddingAngle={4}
                     dataKey="value"
                   >
@@ -422,26 +422,26 @@ export default function ResultsDashboard() {
             className="glass"
             style={{
               borderRadius: "var(--radius-xl)",
-              padding: "24px",
+              padding: "clamp(16px, 3vw, 24px)",
               display: "flex",
               flexDirection: "column",
             }}
           >
-            <h3 style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "var(--text-primary)", marginBottom: "4px" }}>
+            <h3 style={{ fontSize: "15px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "4px" }}>
               Before vs After Optimization
             </h3>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: "16px" }}>
+            <p style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "14px" }}>
               Current monthly spend vs right-sized tier cost
             </p>
 
-            <div style={{ height: "240px", width: "100%" }}>
+            <div style={{ height: "220px", width: "100%" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={barData} margin={{ top: 20, right: 20, left: 0, bottom: 5 }}>
+                <BarChart data={barData} margin={{ top: 20, right: 10, left: -20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
-                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} />
+                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={11} />
                   <YAxis
                     stroke="var(--text-muted)"
-                    fontSize={11}
+                    fontSize={10}
                     tickFormatter={(val) => formatCurrencyShort(Number(val), currency)}
                   />
                   <RechartsTooltip
@@ -470,13 +470,13 @@ export default function ResultsDashboard() {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "12px",
-          marginTop: "36px",
-          marginBottom: "16px",
+          gap: "10px",
+          marginTop: "30px",
+          marginBottom: "14px",
         }}
       >
-        <h2 style={{ fontSize: "var(--text-xl)", fontWeight: 800, color: "var(--text-primary)" }}>
-          Detailed Tool-by-Tool Recommendations ({result.recommendations.length})
+        <h2 style={{ fontSize: "clamp(16px, 3.5vw, 20px)", fontWeight: 800, color: "var(--text-primary)" }}>
+          Detailed Tool Recommendations ({result.recommendations.length})
         </h2>
 
         <div
@@ -484,9 +484,11 @@ export default function ResultsDashboard() {
           style={{
             display: "flex",
             gap: "4px",
-            padding: "4px",
+            padding: "3px",
             borderRadius: "var(--radius-full)",
             border: "1px solid var(--border-subtle)",
+            overflowX: "auto",
+            maxWidth: "100%",
           }}
         >
           {(["all", "high", "medium", "optimal"] as const).map((filterKey) => (
@@ -495,7 +497,7 @@ export default function ResultsDashboard() {
               onClick={() => setActiveFilter(filterKey)}
               type="button"
               style={{
-                padding: "6px 14px",
+                padding: "5px 12px",
                 borderRadius: "var(--radius-full)",
                 fontSize: "11px",
                 fontWeight: 700,
@@ -504,6 +506,7 @@ export default function ResultsDashboard() {
                 cursor: "pointer",
                 background: activeFilter === filterKey ? "var(--accent-primary)" : "transparent",
                 color: activeFilter === filterKey ? "#FFFFFF" : "var(--text-muted)",
+                whiteSpace: "nowrap",
               }}
             >
               {filterKey === "all" ? "All Tools" : filterKey}
@@ -513,7 +516,7 @@ export default function ResultsDashboard() {
       </div>
 
       {/* Tool Recommendations List */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
         {filteredRecommendations.map((rec) => (
           <motion.div
             key={rec.toolId}
@@ -521,7 +524,7 @@ export default function ResultsDashboard() {
             className="glass"
             style={{
               borderRadius: "var(--radius-xl)",
-              padding: "24px 28px",
+              padding: "clamp(16px, 3vw, 24px) clamp(14px, 3vw, 28px)",
               border:
                 rec.severity === "high"
                   ? "1px solid var(--status-danger-border)"
@@ -532,20 +535,20 @@ export default function ResultsDashboard() {
             <div
               style={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
                 flexWrap: "wrap",
-                gap: "12px",
-                marginBottom: "16px",
+                gap: "10px",
+                marginBottom: "12px",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <div style={{ fontSize: "28px" }}>🔧</div>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ fontSize: "24px" }}>🔧</div>
                 <div>
-                  <h3 style={{ fontSize: "var(--text-base)", fontWeight: 800, color: "var(--text-primary)" }}>
+                  <h3 style={{ fontSize: "15px", fontWeight: 800, color: "var(--text-primary)" }}>
                     {rec.toolName}
                   </h3>
-                  <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginTop: "2px" }}>
+                  <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>
                     Current: <strong style={{ color: "var(--text-primary)" }}>{rec.currentPlan}</strong> →
                     Recommended: <strong style={{ color: "var(--status-success)" }}>{rec.recommendedPlan}</strong>
                   </div>
@@ -553,12 +556,12 @@ export default function ResultsDashboard() {
               </div>
 
               {/* Badge & Savings */}
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                 <span
                   style={{
-                    padding: "4px 10px",
+                    padding: "3px 8px",
                     borderRadius: "var(--radius-full)",
-                    fontSize: "11px",
+                    fontSize: "10px",
                     fontWeight: 800,
                     textTransform: "uppercase",
                     background:
@@ -585,29 +588,29 @@ export default function ResultsDashboard() {
                   {rec.severity === "high"
                     ? "Over-Provisioned"
                     : rec.severity === "medium"
-                    ? "Tier Downgrade"
+                    ? "Downgrade"
                     : "Optimal"}
                 </span>
 
                 {rec.monthlySavings > 0 ? (
                   <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "var(--text-base)", fontWeight: 900, color: "var(--status-success)" }}>
+                    <div style={{ fontSize: "14px", fontWeight: 900, color: "var(--status-success)" }}>
                       +{formatCurrency(rec.monthlySavings, currency)}/mo
                     </div>
-                    <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                    <div style={{ fontSize: "9px", color: "var(--text-muted)" }}>
                       ({formatCurrencyShort(rec.annualSavings, currency)}/yr saved)
                     </div>
                   </div>
                 ) : (
-                  <div style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--status-success)" }}>
-                    Optimal Cost
+                  <div style={{ fontSize: "11px", fontWeight: 700, color: "var(--status-success)" }}>
+                    Optimal
                   </div>
                 )}
               </div>
             </div>
 
             {/* Rationale Text */}
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--text-secondary)", lineHeight: 1.6 }}>
+            <p style={{ fontSize: "13px", color: "var(--text-secondary)", lineHeight: 1.55 }}>
               {rec.reason}
             </p>
 
@@ -615,22 +618,22 @@ export default function ResultsDashboard() {
             {rec.alternativeTool && (
               <div
                 style={{
-                  marginTop: "16px",
-                  padding: "14px 18px",
+                  marginTop: "12px",
+                  padding: "12px 14px",
                   borderRadius: "var(--radius-md)",
                   background: "var(--accent-subtle)",
                   border: "1px solid var(--border-strong)",
                   display: "flex",
                   alignItems: "flex-start",
-                  gap: "12px",
+                  gap: "10px",
                 }}
               >
-                <span style={{ fontSize: "20px" }}>💡</span>
-                <div style={{ fontSize: "var(--text-xs)", lineHeight: 1.5 }}>
+                <span style={{ fontSize: "18px" }}>💡</span>
+                <div style={{ fontSize: "11px", lineHeight: 1.5 }}>
                   <strong style={{ color: "var(--accent-primary)" }}>
-                    Alternative Tool Recommendation: Switch to {rec.alternativeTool.name} ({rec.alternativeTool.plan})
+                    Alternative Tool: Switch to {rec.alternativeTool.name} ({rec.alternativeTool.plan})
                   </strong>
-                  <div style={{ color: "var(--text-secondary)", marginTop: "4px" }}>
+                  <div style={{ color: "var(--text-secondary)", marginTop: "3px" }}>
                     {rec.alternativeTool.reason}
                   </div>
                 </div>
@@ -653,7 +656,7 @@ export default function ResultsDashboard() {
               alignItems: "center",
               justifyContent: "center",
               zIndex: 9999,
-              padding: "20px",
+              padding: "16px",
             }}
             onClick={() => setShowLeadModal(false)}
           >
@@ -663,19 +666,19 @@ export default function ResultsDashboard() {
               exit={{ scale: 0.9, opacity: 0 }}
               className="glass-elevated"
               style={{
-                maxWidth: "460px",
+                maxWidth: "440px",
                 width: "100%",
                 borderRadius: "var(--radius-xl)",
-                padding: "28px",
+                padding: "clamp(20px, 4vw, 28px)",
                 position: "relative",
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div style={{ fontSize: "36px", textAlign: "center", marginBottom: "12px" }}>📄</div>
-              <h3 style={{ fontSize: "var(--text-lg)", fontWeight: 800, textAlign: "center", color: "var(--text-primary)" }}>
+              <div style={{ fontSize: "32px", textAlign: "center", marginBottom: "8px" }}>📄</div>
+              <h3 style={{ fontSize: "17px", fontWeight: 800, textAlign: "center", color: "var(--text-primary)" }}>
                 Get Executive PDF Audit Report
               </h3>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", textAlign: "center", marginTop: "4px", marginBottom: "20px" }}>
+              <p style={{ fontSize: "11px", color: "var(--text-muted)", textAlign: "center", marginTop: "4px", marginBottom: "16px" }}>
                 Receive a complete financial memo formatted for founders, CTOs, and finance teams in {currency}.
               </p>
 
@@ -686,28 +689,29 @@ export default function ResultsDashboard() {
                 placeholder="founder@company.com"
                 style={{
                   width: "100%",
-                  padding: "12px 16px",
+                  padding: "10px 14px",
                   borderRadius: "var(--radius-md)",
                   border: "1px solid var(--border-strong)",
                   background: "var(--bg-input)",
                   color: "var(--text-primary)",
-                  fontSize: "var(--text-sm)",
-                  marginBottom: "16px",
+                  fontSize: "13px",
+                  marginBottom: "14px",
                 }}
               />
 
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div style={{ display: "flex", gap: "8px" }}>
                 <button
                   type="button"
                   onClick={() => setShowLeadModal(false)}
                   style={{
                     flex: 1,
-                    padding: "12px",
+                    padding: "10px",
                     borderRadius: "var(--radius-md)",
                     background: "var(--bg-card)",
                     border: "1px solid var(--border-subtle)",
                     color: "var(--text-muted)",
                     fontWeight: 700,
+                    fontSize: "12px",
                     cursor: "pointer",
                   }}
                 >
@@ -719,12 +723,13 @@ export default function ResultsDashboard() {
                   onClick={handleLeadSubmit}
                   style={{
                     flex: 2,
-                    padding: "12px",
+                    padding: "10px",
                     borderRadius: "var(--radius-md)",
                     background: "var(--accent-primary)",
                     border: "none",
                     color: "#FFFFFF",
                     fontWeight: 800,
+                    fontSize: "12px",
                     cursor: isSendingLead ? "wait" : "pointer",
                   }}
                 >

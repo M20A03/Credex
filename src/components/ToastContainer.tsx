@@ -17,12 +17,13 @@ export default function ToastContainer() {
     <div
       style={{
         position: "fixed",
-        bottom: 24,
-        right: 24,
+        bottom: "clamp(16px, 4vw, 24px)",
+        right: "clamp(12px, 3vw, 24px)",
+        left: "clamp(12px, 3vw, auto)",
         zIndex: 99999,
         pointerEvents: "none",
         maxWidth: 420,
-        width: "calc(100vw - 48px)",
+        width: "min(420px, calc(100vw - 24px))",
       }}
     >
       <AnimatePresence mode="popLayout">

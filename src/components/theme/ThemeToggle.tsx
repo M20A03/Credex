@@ -33,8 +33,8 @@ export default function ThemeToggle() {
       className="glass theme-toggle-btn"
       style={{
         position: "relative",
-        width: 42,
-        height: 42,
+        width: "clamp(34px, 8vw, 38px)",
+        height: "clamp(34px, 8vw, 38px)",
         borderRadius: "50%",
         display: "flex",
         alignItems: "center",
@@ -44,6 +44,7 @@ export default function ThemeToggle() {
         background: "var(--bg-card)",
         color: "var(--text-primary)",
         transition: "background 0.2s ease, border-color 0.2s ease, transform 0.15s ease",
+        flexShrink: 0,
       }}
     >
       <motion.span
@@ -52,7 +53,7 @@ export default function ThemeToggle() {
         animate={{ rotate: 0, scale: 1, opacity: 1 }}
         exit={{ rotate: 90, scale: 0, opacity: 0 }}
         transition={{ duration: 0.25 }}
-        style={{ fontSize: 18, display: "flex", alignItems: "center", justifyContent: "center" }}
+        style={{ fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center" }}
       >
         {isDark ? "🌙" : "☀️"}
       </motion.span>

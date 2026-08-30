@@ -201,42 +201,38 @@ export default function SpendForm() {
         className="glass"
         style={{
           borderRadius: "var(--radius-lg)",
-          padding: "16px 20px",
-          marginBottom: "24px",
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "12px",
+          padding: "12px 16px",
+          marginBottom: "20px",
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+          gap: "10px",
           fontSize: "var(--text-xs)",
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ background: "var(--accent-primary)", color: "#fff", width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>1</span>
-          <span style={{ fontWeight: 700 }}>Click tools you use</span>
+          <span style={{ background: "var(--accent-primary)", color: "#fff", width: 22, height: 22, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, flexShrink: 0 }}>1</span>
+          <span style={{ fontWeight: 700 }}>Pick your tools</span>
         </div>
-        <span style={{ color: "var(--text-muted)" }}>→</span>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ background: "var(--accent-primary)", color: "#fff", width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>2</span>
+          <span style={{ background: "var(--accent-primary)", color: "#fff", width: 22, height: 22, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, flexShrink: 0 }}>2</span>
           <span style={{ fontWeight: 700 }}>Set team size</span>
         </div>
-        <span style={{ color: "var(--text-muted)" }}>→</span>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span style={{ background: "var(--status-success)", color: "#fff", width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>3</span>
-          <span style={{ fontWeight: 700 }}>Get instant ₹ / $ savings</span>
+          <span style={{ background: "var(--status-success)", color: "#fff", width: 22, height: 22, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, flexShrink: 0 }}>3</span>
+          <span style={{ fontWeight: 700 }}>Instant ₹/$ savings</span>
         </div>
       </div>
 
       {/* 1-Click Preset Stack Chips */}
-      <div style={{ marginBottom: "24px" }}>
+      <div style={{ marginBottom: "20px" }}>
         <div
           style={{
-            fontSize: "var(--text-xs)",
+            fontSize: "11px",
             fontWeight: 800,
             color: "var(--text-muted)",
             textTransform: "uppercase",
             letterSpacing: "0.06em",
-            marginBottom: "10px",
+            marginBottom: "8px",
             display: "flex",
             alignItems: "center",
             gap: "6px",
@@ -244,7 +240,7 @@ export default function SpendForm() {
         >
           <span>⚡</span> Quick 1-Click Starter Stacks
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
           {PRESET_STACKS.map((preset) => (
             <button
               key={preset.name}
@@ -252,26 +248,26 @@ export default function SpendForm() {
               type="button"
               className="glass"
               style={{
-                padding: "8px 14px",
+                padding: "6px 12px",
                 borderRadius: "var(--radius-full)",
-                fontSize: "var(--text-xs)",
+                fontSize: "11px",
                 fontWeight: 700,
                 color: "var(--text-primary)",
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
+                gap: "5px",
                 cursor: "pointer",
               }}
             >
               <span>{preset.icon}</span>
               <span>{preset.name}</span>
-              <span style={{ color: "var(--text-muted)", fontSize: "11px" }}>({preset.teamSize} devs)</span>
+              <span style={{ color: "var(--text-muted)", fontSize: "10px" }}>({preset.teamSize} devs)</span>
             </button>
           ))}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
         {/* Visual 1-Click Tool Selector Grid */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
@@ -279,7 +275,7 @@ export default function SpendForm() {
           className="glass"
           style={{
             borderRadius: "var(--radius-xl)",
-            padding: "24px 28px",
+            padding: "clamp(16px, 3.5vw, 24px) clamp(12px, 3vw, 28px)",
           }}
         >
           <div
@@ -293,10 +289,10 @@ export default function SpendForm() {
             }}
           >
             <div>
-              <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 800, color: "var(--text-primary)" }}>
+              <h2 style={{ fontSize: "clamp(15px, 3vw, 18px)", fontWeight: 800, color: "var(--text-primary)" }}>
                 Step 1: Click Tools In Your Stack ({tools.length} active)
               </h2>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+              <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                 Tap any tool icon to add or remove it from your audit
               </p>
             </div>
@@ -304,29 +300,29 @@ export default function SpendForm() {
             {/* Live Spend Pill */}
             <div
               style={{
-                padding: "6px 14px",
+                padding: "5px 12px",
                 borderRadius: "var(--radius-full)",
                 background: "var(--accent-subtle)",
                 border: "1px solid var(--border-strong)",
                 display: "flex",
                 alignItems: "center",
-                gap: "8px",
+                gap: "6px",
               }}
             >
-              <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: 600 }}>CURRENT TOTAL:</span>
-              <strong style={{ fontSize: "var(--text-sm)", color: "var(--accent-primary)", fontWeight: 900 }}>
+              <span style={{ fontSize: "10px", color: "var(--text-muted)", fontWeight: 700 }}>TOTAL:</span>
+              <strong style={{ fontSize: "13px", color: "var(--accent-primary)", fontWeight: 900 }}>
                 {formatCurrency(liveTotalMonthlySpend, currency)}/mo
               </strong>
             </div>
           </div>
 
-          {/* Interactive Tool Grid Tiles */}
+          {/* Interactive Tool Grid Tiles (Mobile 3-column / Desktop adaptive) */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
-              gap: "10px",
-              marginBottom: "20px",
+              gridTemplateColumns: "repeat(auto-fill, minmax(clamp(85px, 20vw, 120px), 1fr))",
+              gap: "8px",
+              marginBottom: "16px",
             }}
           >
             {TOOLS.map((t) => {
@@ -337,7 +333,7 @@ export default function SpendForm() {
                   type="button"
                   onClick={() => toggleTool(t.id)}
                   style={{
-                    padding: "12px 10px",
+                    padding: "10px 6px",
                     borderRadius: "var(--radius-md)",
                     border: isSelected ? "2px solid var(--accent-primary)" : "1px solid var(--border-subtle)",
                     background: isSelected ? "var(--accent-subtle)" : "var(--bg-input)",
@@ -345,22 +341,22 @@ export default function SpendForm() {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    gap: "6px",
+                    gap: "4px",
                     cursor: "pointer",
                     transition: "all 0.15s ease",
                     boxShadow: isSelected ? "0 0 12px var(--accent-glow)" : "none",
                   }}
                 >
-                  <span style={{ fontSize: "24px" }}>{t.logo}</span>
-                  <span style={{ fontSize: "12px", fontWeight: 700, textAlign: "center" }}>{t.name}</span>
+                  <span style={{ fontSize: "clamp(20px, 4.5vw, 24px)" }}>{t.logo}</span>
+                  <span style={{ fontSize: "11px", fontWeight: 700, textAlign: "center", lineHeight: 1.2 }}>{t.name}</span>
                   <span
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       fontWeight: 800,
                       color: isSelected ? "var(--status-success)" : "var(--text-muted)",
                     }}
                   >
-                    {isSelected ? "✓ Active" : "+ Add"}
+                    {isSelected ? "✓ Added" : "+ Add"}
                   </span>
                 </button>
               );
@@ -369,7 +365,7 @@ export default function SpendForm() {
 
           {/* Configured Tools Seat & Plan Customizer */}
           {tools.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--border-subtle)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "14px", paddingTop: "14px", borderTop: "1px solid var(--border-subtle)" }}>
               <div style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)" }}>
                 Adjust Active Tiers & Seat Counts:
               </div>
@@ -389,97 +385,25 @@ export default function SpendForm() {
                       className="glass"
                       style={{
                         borderRadius: "var(--radius-md)",
-                        padding: "14px 18px",
+                        padding: "12px clamp(10px, 2.5vw, 16px)",
                         display: "flex",
-                        flexWrap: "wrap",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        gap: "14px",
+                        flexDirection: "column",
+                        gap: "10px",
                         border: "1px solid var(--border-subtle)",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: "160px" }}>
-                        <span style={{ fontSize: "24px" }}>{tool.logo}</span>
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                            {tool.name}
+                      {/* Top row: Tool Info + Remove Button */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "20px" }}>{tool.logo}</span>
+                          <div>
+                            <span style={{ fontWeight: 800, fontSize: "13px", color: "var(--text-primary)" }}>
+                              {tool.name}
+                            </span>
+                            <span style={{ fontSize: "10px", color: "var(--text-muted)", marginLeft: "6px" }}>
+                              ({formatCurrency(activePlan?.pricePerSeat || 0, currency)}/seat)
+                            </span>
                           </div>
-                          <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
-                            {formatCurrency(activePlan?.pricePerSeat || 0, currency)}/seat
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Plan Dropdown */}
-                      <div style={{ flex: 1, minWidth: "160px" }}>
-                        <select
-                          value={item.planId}
-                          onChange={(e) => handlePlanChange(item.toolId, e.target.value)}
-                          style={{
-                            width: "100%",
-                            padding: "8px 12px",
-                            borderRadius: "var(--radius-sm)",
-                            border: "1px solid var(--border-strong)",
-                            background: "var(--bg-input)",
-                            color: "var(--text-primary)",
-                            fontSize: "var(--text-xs)",
-                            fontWeight: 600,
-                          }}
-                        >
-                          {tool.plans.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name} ({formatCurrency(p.pricePerSeat, currency)}/seat)
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Seats Stepper */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                        <button
-                          type="button"
-                          onClick={() => handleSeatsChange(item.toolId, item.seats - 1)}
-                          style={{
-                            width: "28px",
-                            height: "28px",
-                            borderRadius: "var(--radius-sm)",
-                            border: "1px solid var(--border-strong)",
-                            background: "var(--bg-card)",
-                            color: "var(--text-primary)",
-                            fontWeight: 800,
-                            cursor: "pointer",
-                          }}
-                        >
-                          -
-                        </button>
-                        <span style={{ fontSize: "var(--text-xs)", fontWeight: 800, minWidth: "50px", textAlign: "center" }}>
-                          {item.seats} {item.seats === 1 ? "seat" : "seats"}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handleSeatsChange(item.toolId, item.seats + 1)}
-                          style={{
-                            width: "28px",
-                            height: "28px",
-                            borderRadius: "var(--radius-sm)",
-                            border: "1px solid var(--border-strong)",
-                            background: "var(--bg-card)",
-                            color: "var(--text-primary)",
-                            fontWeight: 800,
-                            cursor: "pointer",
-                          }}
-                        >
-                          +
-                        </button>
-                      </div>
-
-                      {/* Subtotal & Delete */}
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "110px", justifyContent: "flex-end" }}>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ fontWeight: 800, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                            {formatCurrency(toolCost, currency)}
-                          </div>
-                          <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>/month</div>
                         </div>
 
                         <button
@@ -492,11 +416,104 @@ export default function SpendForm() {
                             color: "var(--status-danger)",
                             cursor: "pointer",
                             fontSize: "16px",
-                            padding: "4px",
+                            padding: "6px 8px",
+                            borderRadius: "var(--radius-xs)",
                           }}
                         >
                           ✕
                         </button>
+                      </div>
+
+                      {/* Bottom row: Plan Dropdown + Seats Stepper + Subtotal */}
+                      <div
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 140px), 1fr))",
+                          alignItems: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        {/* Plan Dropdown */}
+                        <div>
+                          <select
+                            value={item.planId}
+                            onChange={(e) => handlePlanChange(item.toolId, e.target.value)}
+                            style={{
+                              width: "100%",
+                              padding: "8px 10px",
+                              borderRadius: "var(--radius-sm)",
+                              border: "1px solid var(--border-strong)",
+                              background: "var(--bg-input)",
+                              color: "var(--text-primary)",
+                              fontSize: "12px",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {tool.plans.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} ({formatCurrency(p.pricePerSeat, currency)}/mo)
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Seats Stepper & Subtotal Row */}
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                          {/* Stepper */}
+                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <button
+                              type="button"
+                              onClick={() => handleSeatsChange(item.toolId, item.seats - 1)}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "var(--radius-sm)",
+                                border: "1px solid var(--border-strong)",
+                                background: "var(--bg-card)",
+                                color: "var(--text-primary)",
+                                fontWeight: 800,
+                                fontSize: "14px",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              -
+                            </button>
+                            <span style={{ fontSize: "12px", fontWeight: 800, minWidth: "48px", textAlign: "center" }}>
+                              {item.seats} {item.seats === 1 ? "seat" : "seats"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleSeatsChange(item.toolId, item.seats + 1)}
+                              style={{
+                                width: "30px",
+                                height: "30px",
+                                borderRadius: "var(--radius-sm)",
+                                border: "1px solid var(--border-strong)",
+                                background: "var(--bg-card)",
+                                color: "var(--text-primary)",
+                                fontWeight: 800,
+                                fontSize: "14px",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                              }}
+                            >
+                              +
+                            </button>
+                          </div>
+
+                          {/* Subtotal */}
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontWeight: 800, fontSize: "13px", color: "var(--text-primary)" }}>
+                              {formatCurrency(toolCost, currency)}
+                            </div>
+                            <div style={{ fontSize: "9px", color: "var(--text-muted)" }}>/month</div>
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
                   );
@@ -514,30 +531,31 @@ export default function SpendForm() {
           className="glass"
           style={{
             borderRadius: "var(--radius-xl)",
-            padding: "24px 28px",
+            padding: "clamp(16px, 3.5vw, 24px) clamp(12px, 3vw, 28px)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
             <div
               style={{
-                width: 34,
-                height: 34,
+                width: 32,
+                height: 32,
                 borderRadius: "var(--radius-sm)",
                 background: "var(--luxury-gradient)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#FFFFFF",
-                fontSize: "16px",
+                fontSize: "15px",
+                flexShrink: 0,
               }}
             >
               👥
             </div>
             <div>
-              <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 800, color: "var(--text-primary)" }}>
+              <h2 style={{ fontSize: "clamp(15px, 3vw, 18px)", fontWeight: 800, color: "var(--text-primary)" }}>
                 Step 2: Team Size & Workload Profile
               </h2>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+              <p style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                 Used to determine over-provisioned enterprise minimums
               </p>
             </div>
@@ -546,8 +564,8 @@ export default function SpendForm() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "20px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 220px), 1fr))",
+              gap: "16px",
             }}
           >
             {/* Team Size Slider & Number */}
@@ -555,11 +573,11 @@ export default function SpendForm() {
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
                 <label
                   htmlFor="team-size-range"
-                  style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--text-secondary)" }}
+                  style={{ fontSize: "11px", fontWeight: 700, color: "var(--text-secondary)" }}
                 >
                   TEAM / COMPANY SIZE
                 </label>
-                <strong style={{ fontSize: "var(--text-xs)", color: "var(--accent-primary)" }}>
+                <strong style={{ fontSize: "12px", color: "var(--accent-primary)" }}>
                   {teamSize} {teamSize === 1 ? "Person" : "People"}
                 </strong>
               </div>
@@ -579,7 +597,7 @@ export default function SpendForm() {
                 htmlFor="workload-select"
                 style={{
                   display: "block",
-                  fontSize: "var(--text-xs)",
+                  fontSize: "11px",
                   fontWeight: 700,
                   color: "var(--text-secondary)",
                   marginBottom: "8px",
@@ -593,12 +611,12 @@ export default function SpendForm() {
                 onChange={(e) => setUseCase(e.target.value as "coding" | "writing" | "research" | "mixed")}
                 style={{
                   width: "100%",
-                  padding: "10px 14px",
+                  padding: "10px 12px",
                   borderRadius: "var(--radius-md)",
                   border: "1px solid var(--border-strong)",
                   background: "var(--bg-input)",
                   color: "var(--text-primary)",
-                  fontSize: "var(--text-xs)",
+                  fontSize: "12px",
                   fontWeight: 600,
                 }}
               >
@@ -619,14 +637,14 @@ export default function SpendForm() {
           className="glass"
           style={{
             borderRadius: "var(--radius-xl)",
-            padding: "20px 28px",
+            padding: "clamp(14px, 3vw, 20px) clamp(12px, 3vw, 28px)",
           }}
         >
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-              gap: "16px",
+              gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 200px), 1fr))",
+              gap: "12px",
             }}
           >
             <div>
@@ -634,10 +652,10 @@ export default function SpendForm() {
                 htmlFor="work-email-input"
                 style={{
                   display: "block",
-                  fontSize: "11px",
+                  fontSize: "10px",
                   fontWeight: 700,
                   color: "var(--text-secondary)",
-                  marginBottom: "6px",
+                  marginBottom: "4px",
                 }}
               >
                 WORK EMAIL (OPTIONAL)
@@ -650,12 +668,12 @@ export default function SpendForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 style={{
                   width: "100%",
-                  padding: "10px 14px",
+                  padding: "9px 12px",
                   borderRadius: "var(--radius-md)",
                   border: "1px solid var(--border-subtle)",
                   background: "var(--bg-input)",
                   color: "var(--text-primary)",
-                  fontSize: "var(--text-xs)",
+                  fontSize: "12px",
                 }}
               />
             </div>
@@ -664,10 +682,10 @@ export default function SpendForm() {
                 htmlFor="company-name-input"
                 style={{
                   display: "block",
-                  fontSize: "11px",
+                  fontSize: "10px",
                   fontWeight: 700,
                   color: "var(--text-secondary)",
-                  marginBottom: "6px",
+                  marginBottom: "4px",
                 }}
               >
                 COMPANY / TEAM NAME (OPTIONAL)
@@ -680,12 +698,12 @@ export default function SpendForm() {
                 onChange={(e) => setCompany(e.target.value)}
                 style={{
                   width: "100%",
-                  padding: "10px 14px",
+                  padding: "9px 12px",
                   borderRadius: "var(--radius-md)",
                   border: "1px solid var(--border-subtle)",
                   background: "var(--bg-input)",
                   color: "var(--text-primary)",
-                  fontSize: "var(--text-xs)",
+                  fontSize: "12px",
                 }}
               />
             </div>
@@ -697,7 +715,7 @@ export default function SpendForm() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "6px" }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "4px" }}
         >
           <button
             type="submit"
@@ -706,12 +724,12 @@ export default function SpendForm() {
             style={{
               width: "100%",
               maxWidth: "520px",
-              padding: "18px 32px",
+              padding: "clamp(14px, 3.5vw, 18px) clamp(16px, 4vw, 32px)",
               borderRadius: "var(--radius-full)",
               background: "var(--luxury-gradient)",
               color: "#FFFFFF",
               fontWeight: 900,
-              fontSize: "var(--text-base)",
+              fontSize: "clamp(14px, 3.2vw, 16px)",
               letterSpacing: "0.02em",
               border: "none",
               cursor: isSubmitting || isLoading ? "wait" : "pointer",
@@ -719,7 +737,7 @@ export default function SpendForm() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "10px",
+              gap: "8px",
             }}
           >
             {isSubmitting || isLoading ? (
@@ -742,8 +760,8 @@ export default function SpendForm() {
             )}
           </button>
 
-          <p style={{ fontSize: "12px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "6px" }}>
-            <span>🔒</span> 100% Free · No credit card required · Instant calculations in {currency}
+          <p style={{ fontSize: "11px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "5px", textAlign: "center" }}>
+            <span>🔒</span> 100% Free · No credit card required · Instant {currency} calculations
           </p>
         </motion.div>
       </form>

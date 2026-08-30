@@ -94,7 +94,7 @@ export default function ToolComparisonMatrix() {
   const currency = useAuditStore((s) => s.currency);
 
   return (
-    <div style={{ marginTop: "48px", width: "100%" }}>
+    <div style={{ marginTop: "clamp(28px, 5vw, 48px)", width: "100%" }}>
       {/* Toggle Bar */}
       <button
         onClick={() => setIsOpen((prev) => !prev)}
@@ -102,23 +102,25 @@ export default function ToolComparisonMatrix() {
         className="glass"
         style={{
           width: "100%",
-          padding: "18px 24px",
+          padding: "clamp(12px, 2.5vw, 18px) clamp(14px, 3vw, 24px)",
           borderRadius: "var(--radius-lg)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "10px",
           cursor: "pointer",
           border: "1px solid var(--border-subtle)",
           textAlign: "left",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-          <span style={{ fontSize: "24px" }}>⚖️</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: "200px" }}>
+          <span style={{ fontSize: "22px" }}>⚖️</span>
           <div>
-            <div style={{ fontWeight: 800, fontSize: "var(--text-base)", color: "var(--text-primary)" }}>
+            <div style={{ fontWeight: 800, fontSize: "clamp(13px, 2.5vw, 16px)", color: "var(--text-primary)" }}>
               2026 AI Developer Tool Benchmark & Pricing Matrix
             </div>
-            <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginTop: "2px" }}>
+            <div style={{ fontSize: "11px", color: "var(--text-muted)", marginTop: "2px" }}>
               Compare Cursor vs Copilot vs Windsurf vs Claude side-by-side
             </div>
           </div>
@@ -126,12 +128,13 @@ export default function ToolComparisonMatrix() {
 
         <div
           style={{
-            padding: "6px 14px",
+            padding: "5px 12px",
             borderRadius: "var(--radius-full)",
             background: "var(--accent-subtle)",
             color: "var(--accent-primary)",
             fontWeight: 700,
-            fontSize: "var(--text-xs)",
+            fontSize: "11px",
+            whiteSpace: "nowrap",
           }}
         >
           {isOpen ? "Hide Matrix ▲" : "View Comparison Matrix ▼"}
@@ -146,23 +149,23 @@ export default function ToolComparisonMatrix() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
-            style={{ overflow: "hidden", marginTop: "16px" }}
+            style={{ overflow: "hidden", marginTop: "14px" }}
           >
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-                gap: "16px",
+                gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))",
+                gap: "14px",
               }}
             >
               {MATRIX_TOOLS.map((tool) => (
                 <motion.div
                   key={tool.id}
-                  whileHover={{ y: -4 }}
+                  whileHover={{ y: -3 }}
                   className="glass"
                   style={{
                     borderRadius: "var(--radius-lg)",
-                    padding: "20px",
+                    padding: "clamp(16px, 3vw, 20px)",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
@@ -175,17 +178,17 @@ export default function ToolComparisonMatrix() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      marginBottom: "14px",
+                      marginBottom: "12px",
                     }}
                   >
-                    <span style={{ fontSize: "28px" }}>{tool.logo}</span>
+                    <span style={{ fontSize: "24px" }}>{tool.logo}</span>
                     <span
                       style={{
                         padding: "3px 8px",
                         borderRadius: "var(--radius-full)",
                         background: "var(--accent-subtle)",
                         color: "var(--accent-primary)",
-                        fontSize: "11px",
+                        fontSize: "10px",
                         fontWeight: 700,
                       }}
                     >
@@ -194,25 +197,25 @@ export default function ToolComparisonMatrix() {
                   </div>
 
                   <div>
-                    <h3 style={{ fontWeight: 800, fontSize: "var(--text-lg)", color: "var(--text-primary)" }}>
+                    <h3 style={{ fontWeight: 800, fontSize: "16px", color: "var(--text-primary)" }}>
                       {tool.name}
                     </h3>
-                    <div style={{ marginTop: "6px", display: "flex", alignItems: "baseline", gap: "6px" }}>
+                    <div style={{ marginTop: "4px", display: "flex", alignItems: "baseline", gap: "6px" }}>
                       <span
                         style={{
-                          fontSize: "var(--text-2xl)",
+                          fontSize: "clamp(18px, 4vw, 22px)",
                           fontWeight: 900,
                           color: "var(--text-primary)",
                         }}
                       >
                         {formatCurrency(tool.priceINR, currency)}
                       </span>
-                      <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                      <span style={{ fontSize: "11px", color: "var(--text-muted)" }}>
                         / dev / month
                       </span>
                     </div>
 
-                    <div style={{ marginTop: "16px", fontSize: "var(--text-xs)", display: "flex", flexDirection: "column", gap: "8px" }}>
+                    <div style={{ marginTop: "12px", fontSize: "11px", display: "flex", flexDirection: "column", gap: "6px" }}>
                       <div>
                         <span style={{ color: "var(--text-muted)" }}>Execution Speed: </span>
                         <strong style={{ color: "var(--text-primary)" }}>{tool.speed}</strong>
@@ -228,13 +231,13 @@ export default function ToolComparisonMatrix() {
                     </div>
 
                     {/* Features list */}
-                    <div style={{ marginTop: "16px", paddingTop: "14px", borderTop: "1px solid var(--border-subtle)" }}>
-                      <div style={{ fontSize: "11px", fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "8px" }}>
+                    <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid var(--border-subtle)" }}>
+                      <div style={{ fontSize: "10px", fontWeight: 700, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "6px" }}>
                         Key Capabilities
                       </div>
-                      <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "6px", fontSize: "12px" }}>
+                      <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "5px", fontSize: "11px" }}>
                         {tool.features.map((feat) => (
-                          <li key={feat} style={{ display: "flex", alignItems: "flex-start", gap: "6px", color: "var(--text-secondary)" }}>
+                          <li key={feat} style={{ display: "flex", alignItems: "flex-start", gap: "6px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
                             <span style={{ color: "var(--status-success)" }}>✓</span>
                             <span>{feat}</span>
                           </li>

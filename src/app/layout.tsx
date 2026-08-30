@@ -1,9 +1,19 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { inter, spaceGrotesk } from "./fonts";
 import { ThemeProvider, themeInitScript } from "@/components/theme/ThemeProvider";
 import ToastContainer from "@/components/ToastContainer";
 import CustomCursor from "@/components/effects/CustomCursor";
 import "./globals.css";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#05070E" },
+    { media: "(prefers-color-scheme: light)", color: "#F8FAFC" },
+  ],
+};
 
 export const metadata: Metadata = {
   title: "Credex AI Spend Audit — Optimize Your AI Tool Budget in ₹",

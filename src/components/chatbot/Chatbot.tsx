@@ -276,12 +276,12 @@ export default function Chatbot({ formContext }: ChatbotProps) {
           className="glass-elevated"
           style={{
             position: "fixed",
-            bottom: 96,
-            right: 28,
+            bottom: "clamp(76px, 16vw, 96px)",
+            right: "clamp(16px, 4vw, 28px)",
             borderRadius: "var(--radius-md)",
-            padding: "10px 16px",
+            padding: "8px 14px",
             color: "var(--text-primary)",
-            fontSize: "var(--text-xs)",
+            fontSize: "12px",
             fontWeight: 600,
             zIndex: 8999,
             maxWidth: 240,
@@ -310,53 +310,52 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             transition={{ type: "spring", stiffness: 380, damping: 28 }}
             style={{
               position: "fixed",
-              bottom: 96,
-              right: 28,
-              width: 380,
-              maxWidth: "calc(100vw - 40px)",
-              height: 520,
-              maxHeight: "calc(100vh - 120px)",
+              bottom: "clamp(12px, 3vw, 88px)",
+              right: "clamp(12px, 3vw, 28px)",
+              width: "min(380px, calc(100vw - 24px))",
+              height: "min(520px, calc(100dvh - 100px))",
               borderRadius: "var(--radius-xl)",
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
               zIndex: 9000,
+              boxShadow: "var(--shadow-elevated)",
             }}
           >
             {/* Header */}
             <div
               style={{
-                padding: "14px 18px",
+                padding: "10px 14px",
                 borderBottom: "1px solid var(--border-subtle)",
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: 8,
                 background: "var(--bg-card)",
               }}
             >
               <div
                 style={{
-                  width: 34,
-                  height: 34,
+                  width: 30,
+                  height: 30,
                   borderRadius: "50%",
                   background: "var(--luxury-gradient)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 16,
+                  fontSize: 14,
                   color: "#FFFFFF",
                   flexShrink: 0,
                 }}
               >
                 🤖
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 700, fontSize: "13px", color: "var(--text-primary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   Saver AI
                 </div>
-                <div style={{ fontSize: "11px", color: "var(--status-success)", display: "flex", alignItems: "center", gap: 4 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--status-success)" }} />
-                  Online · Credex SRE
+                <div style={{ fontSize: "10px", color: "var(--status-success)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--status-success)" }} />
+                  Online
                 </div>
               </div>
               <AISelector />
@@ -364,14 +363,16 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                 onClick={clearHistory}
                 type="button"
                 title="Clear history"
-                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 14 }}
+                aria-label="Clear chat history"
+                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 13, padding: "4px" }}
               >
                 🗑️
               </button>
               <button
                 onClick={() => setIsOpen(false)}
                 type="button"
-                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 16 }}
+                aria-label="Close chat window"
+                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 16, padding: "4px" }}
               >
                 ✕
               </button>
@@ -382,10 +383,10 @@ export default function Chatbot({ formContext }: ChatbotProps) {
               style={{
                 flex: 1,
                 overflowY: "auto",
-                padding: "16px",
+                padding: "12px",
                 display: "flex",
                 flexDirection: "column",
-                gap: "12px",
+                gap: "10px",
               }}
             >
               {messages.map((msg) => (
@@ -393,7 +394,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                   key={msg.id}
                   style={{
                     alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                    maxWidth: "85%",
+                    maxWidth: "88%",
                   }}
                 >
                   <div
@@ -402,9 +403,9 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                       color: msg.role === "user" ? "#FFFFFF" : "var(--text-primary)",
                       border: msg.role === "user" ? "none" : "1px solid var(--border-subtle)",
                       borderRadius: "var(--radius-md)",
-                      padding: "10px 14px",
-                      fontSize: "var(--text-sm)",
-                      lineHeight: 1.5,
+                      padding: "8px 12px",
+                      fontSize: "13px",
+                      lineHeight: 1.45,
                     }}
                     dangerouslySetInnerHTML={{
                       __html: msg.content
@@ -414,7 +415,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                   />
                   <span
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: "var(--text-muted)",
                       marginTop: 2,
                       display: "block",
@@ -433,8 +434,8 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                     background: "var(--bg-card)",
                     border: "1px solid var(--border-subtle)",
                     borderRadius: "var(--radius-md)",
-                    padding: "8px 14px",
-                    fontSize: "var(--text-sm)",
+                    padding: "8px 12px",
+                    fontSize: "12px",
                     color: "var(--text-muted)",
                   }}
                 >
@@ -452,23 +453,24 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                     placeholder="you@company.in"
                     style={{
                       flex: 1,
-                      padding: "8px 12px",
+                      padding: "8px 10px",
                       borderRadius: "var(--radius-sm)",
                       border: "1px solid var(--border-strong)",
                       background: "var(--bg-input)",
                       color: "var(--text-primary)",
-                      fontSize: "var(--text-xs)",
+                      fontSize: "13px",
                     }}
                   />
                   <button
                     onClick={handleEmailSubmit}
                     type="button"
                     style={{
-                      padding: "8px 14px",
+                      padding: "8px 12px",
                       borderRadius: "var(--radius-sm)",
                       background: "var(--accent-primary)",
                       color: "#FFFFFF",
-                      fontSize: "var(--text-xs)",
+                      fontSize: "12px",
+                      fontWeight: 700,
                       border: "none",
                       cursor: "pointer",
                     }}
@@ -484,12 +486,13 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             {messages.length <= 2 && (
               <div
                 style={{
-                  padding: "8px 14px",
+                  padding: "6px 10px",
                   display: "flex",
-                  flexWrap: "wrap",
                   gap: 6,
+                  overflowX: "auto",
                   borderTop: "1px solid var(--border-subtle)",
                   background: "var(--bg-card)",
+                  scrollbarWidth: "none",
                 }}
               >
                 {QUICK_REPLIES.map((reply) => (
@@ -505,6 +508,8 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                       fontSize: "11px",
                       color: "var(--text-primary)",
                       cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      flexShrink: 0,
                     }}
                   >
                     {reply}
@@ -516,10 +521,10 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             {/* Input Box */}
             <div
               style={{
-                padding: "12px 14px",
+                padding: "10px 12px",
                 borderTop: "1px solid var(--border-subtle)",
                 display: "flex",
-                gap: 8,
+                gap: 6,
                 background: "var(--bg-card)",
               }}
             >
@@ -537,19 +542,19 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                 placeholder="Ask about AI savings..."
                 style={{
                   flex: 1,
-                  padding: "10px 14px",
+                  padding: "8px 12px",
                   borderRadius: "var(--radius-md)",
                   border: "1px solid var(--border-subtle)",
                   background: "var(--bg-input)",
                   color: "var(--text-primary)",
-                  fontSize: "var(--text-sm)",
+                  fontSize: "14px",
                 }}
               />
               <button
                 onClick={() => sendMessage(inputValue)}
                 type="button"
                 style={{
-                  padding: "10px 16px",
+                  padding: "8px 14px",
                   borderRadius: "var(--radius-md)",
                   background: "var(--accent-primary)",
                   color: "#FFFFFF",
@@ -572,10 +577,10 @@ export default function Chatbot({ formContext }: ChatbotProps) {
         aria-label="Open Saver AI Chat"
         style={{
           position: "fixed",
-          bottom: 28,
-          right: 28,
-          width: 54,
-          height: 54,
+          bottom: "clamp(16px, 4vw, 28px)",
+          right: "clamp(16px, 4vw, 28px)",
+          width: "clamp(48px, 12vw, 54px)",
+          height: "clamp(48px, 12vw, 54px)",
           borderRadius: "50%",
           background: "var(--luxury-gradient)",
           color: "#FFFFFF",
@@ -585,7 +590,7 @@ export default function Chatbot({ formContext }: ChatbotProps) {
           alignItems: "center",
           justifyContent: "center",
           cursor: "pointer",
-          fontSize: 24,
+          fontSize: 22,
           zIndex: 8999,
         }}
       >

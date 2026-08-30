@@ -12,7 +12,7 @@ export default function CurrencyToggle() {
       style={{
         display: "inline-flex",
         alignItems: "center",
-        padding: "3px",
+        padding: "2px",
         borderRadius: "var(--radius-full)",
         border: "1px solid var(--border-subtle)",
         background: "var(--bg-card)",
@@ -23,10 +23,10 @@ export default function CurrencyToggle() {
         type="button"
         style={{
           position: "relative",
-          padding: "6px 14px",
+          padding: "5px clamp(8px, 2vw, 12px)",
           borderRadius: "var(--radius-full)",
-          fontSize: "var(--text-xs)",
-          fontWeight: 700,
+          fontSize: "11px",
+          fontWeight: 800,
           border: "none",
           cursor: "pointer",
           background: "transparent",
@@ -56,10 +56,10 @@ export default function CurrencyToggle() {
         type="button"
         style={{
           position: "relative",
-          padding: "6px 14px",
+          padding: "5px clamp(8px, 2vw, 12px)",
           borderRadius: "var(--radius-full)",
-          fontSize: "var(--text-xs)",
-          fontWeight: 700,
+          fontSize: "11px",
+          fontWeight: 800,
           border: "none",
           cursor: "pointer",
           background: "transparent",
