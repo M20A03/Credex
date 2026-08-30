@@ -89,7 +89,6 @@ export default function SpendForm() {
 
   const [email, setEmail] = useState("");
   const [company, setCompany] = useState("");
-  const [selectedToolToAdd, setSelectedToolToAdd] = useState<string>("");
   const [analysisStep, setAnalysisStep] = useState<string>("");
 
   // Calculate live total monthly spend preview
@@ -99,17 +98,16 @@ export default function SpendForm() {
     return acc + (plan ? plan.pricePerSeat * item.seats : 0);
   }, 0);
 
-  const handleAddTool = (toolId: string) => {
-    if (!toolId) return;
+  const toggleTool = (toolId: string) => {
     if (tools.some((t) => t.toolId === toolId)) {
-      addToast({ type: "info", message: "This tool is already added to your stack." });
-      return;
+      setTools(tools.filter((t) => t.toolId !== toolId));
+    } else {
+      const tool = getToolById(toolId);
+      if (!tool) return;
+      const defaultPlan = tool.plans.find((p) => p.popular) || tool.plans[0];
+      setTools([...tools, { toolId, planId: defaultPlan.id, seats: Math.min(teamSize, 5) }]);
+      addToast({ type: "success", message: `Added ${tool.name} to stack!` });
     }
-    const tool = getToolById(toolId);
-    if (!tool) return;
-    const defaultPlan = tool.plans.find((p) => p.popular) || tool.plans[0];
-    setTools([...tools, { toolId, planId: defaultPlan.id, seats: Math.min(teamSize, 5) }]);
-    setSelectedToolToAdd("");
   };
 
   const handleRemoveTool = (toolId: string) => {
@@ -135,7 +133,7 @@ export default function SpendForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (tools.length === 0) {
-      addToast({ type: "error", message: "Please add at least one AI tool to audit." });
+      addToast({ type: "error", message: "Please select at least one AI tool to audit." });
       return;
     }
 
@@ -144,9 +142,9 @@ export default function SpendForm() {
 
     // Dynamic analysis steps simulation for high-tech feeling
     setAnalysisStep("Auditing tier allocations & seat over-provisioning...");
-    await new Promise((r) => setTimeout(r, 450));
+    await new Promise((r) => setTimeout(r, 400));
     setAnalysisStep("Benchmarking pricing against 2026 SaaS rates in " + currency + "...");
-    await new Promise((r) => setTimeout(r, 450));
+    await new Promise((r) => setTimeout(r, 400));
     setAnalysisStep("Synthesizing ROI & alternative migration roadmap...");
 
     try {
@@ -196,12 +194,41 @@ export default function SpendForm() {
     }
   };
 
-  const availableToolsToAdd = TOOLS.filter((tool) => !tools.some((t) => t.toolId === tool.id));
-
   return (
-    <div style={{ maxWidth: 840, margin: "0 auto", width: "100%" }}>
+    <div style={{ maxWidth: 880, margin: "0 auto", width: "100%" }}>
+      {/* 3-Step Visual Quick Guide */}
+      <div
+        className="glass"
+        style={{
+          borderRadius: "var(--radius-lg)",
+          padding: "16px 20px",
+          marginBottom: "24px",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "12px",
+          fontSize: "var(--text-xs)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ background: "var(--accent-primary)", color: "#fff", width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>1</span>
+          <span style={{ fontWeight: 700 }}>Click tools you use</span>
+        </div>
+        <span style={{ color: "var(--text-muted)" }}>→</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ background: "var(--accent-primary)", color: "#fff", width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>2</span>
+          <span style={{ fontWeight: 700 }}>Set team size</span>
+        </div>
+        <span style={{ color: "var(--text-muted)" }}>→</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span style={{ background: "var(--status-success)", color: "#fff", width: 20, height: 20, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>3</span>
+          <span style={{ fontWeight: 700 }}>Get instant ₹ / $ savings</span>
+        </div>
+      </div>
+
       {/* 1-Click Preset Stack Chips */}
-      <div style={{ marginBottom: "28px" }}>
+      <div style={{ marginBottom: "24px" }}>
         <div
           style={{
             fontSize: "var(--text-xs)",
@@ -215,7 +242,7 @@ export default function SpendForm() {
             gap: "6px",
           }}
         >
-          <span>⚡</span> Quick Audit Presets (1-Click)
+          <span>⚡</span> Quick 1-Click Starter Stacks
         </div>
         <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
           {PRESET_STACKS.map((preset) => (
@@ -245,131 +272,10 @@ export default function SpendForm() {
       </div>
 
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-        {/* Team Configuration Card */}
+        {/* Visual 1-Click Tool Selector Grid */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="glass"
-          style={{
-            borderRadius: "var(--radius-xl)",
-            padding: "24px 28px",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
-            <div
-              style={{
-                width: 36,
-                height: 36,
-                borderRadius: "var(--radius-sm)",
-                background: "var(--luxury-gradient)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#FFFFFF",
-                fontSize: "18px",
-              }}
-            >
-              👥
-            </div>
-            <div>
-              <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 800, color: "var(--text-primary)" }}>
-                Step 1: Your Team Profile
-              </h2>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                Helps us calibrate license redundancy and seat sharing
-              </p>
-            </div>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-              gap: "20px",
-            }}
-          >
-            {/* Team Size */}
-            <div>
-              <label
-                htmlFor="team-size-input"
-                style={{
-                  display: "block",
-                  fontSize: "var(--text-xs)",
-                  fontWeight: 700,
-                  color: "var(--text-secondary)",
-                  marginBottom: "8px",
-                }}
-              >
-                TEAM / COMPANY SIZE
-              </label>
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                <input
-                  id="team-size-input"
-                  type="number"
-                  min={1}
-                  max={10000}
-                  value={teamSize}
-                  onChange={(e) => setTeamSize(Math.max(1, parseInt(e.target.value) || 1))}
-                  style={{
-                    width: "100px",
-                    padding: "10px 14px",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--border-strong)",
-                    background: "var(--bg-input)",
-                    color: "var(--text-primary)",
-                    fontSize: "var(--text-base)",
-                    fontWeight: 700,
-                  }}
-                />
-                <span style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                  {teamSize === 1 ? "person (solo founder)" : "people in engineering / product"}
-                </span>
-              </div>
-            </div>
-
-            {/* Primary Use Case */}
-            <div>
-              <label
-                htmlFor="use-case-select"
-                style={{
-                  display: "block",
-                  fontSize: "var(--text-xs)",
-                  fontWeight: 700,
-                  color: "var(--text-secondary)",
-                  marginBottom: "8px",
-                }}
-              >
-                PRIMARY WORKLOAD
-              </label>
-              <select
-                id="use-case-select"
-                value={useCase}
-                onChange={(e) => setUseCase(e.target.value as "coding" | "writing" | "research" | "mixed")}
-                style={{
-                  width: "100%",
-                  padding: "10px 14px",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border-strong)",
-                  background: "var(--bg-input)",
-                  color: "var(--text-primary)",
-                  fontSize: "var(--text-sm)",
-                  fontWeight: 600,
-                }}
-              >
-                <option value="coding">💻 Coding & Software Engineering</option>
-                <option value="research">🔍 Research & Data Intelligence</option>
-                <option value="writing">✍️ Content & Copywriting</option>
-                <option value="mixed">🌐 Mixed Cross-Functional Operations</option>
-              </select>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* AI Tools Selection Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
           className="glass"
           style={{
             borderRadius: "var(--radius-xl)",
@@ -381,38 +287,21 @@ export default function SpendForm() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              marginBottom: "20px",
+              marginBottom: "16px",
               flexWrap: "wrap",
-              gap: "12px",
+              gap: "10px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "var(--radius-sm)",
-                  background: "var(--luxury-gradient)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFFFFF",
-                  fontSize: "18px",
-                }}
-              >
-                🧰
-              </div>
-              <div>
-                <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 800, color: "var(--text-primary)" }}>
-                  Step 2: Active AI Tool Subscriptions ({tools.length})
-                </h2>
-                <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                  Add the tools your developers, product managers, or designers use
-                </p>
-              </div>
+            <div>
+              <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 800, color: "var(--text-primary)" }}>
+                Step 1: Click Tools In Your Stack ({tools.length} active)
+              </h2>
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                Tap any tool icon to add or remove it from your audit
+              </p>
             </div>
 
-            {/* Live Spend Ticker Pill */}
+            {/* Live Spend Pill */}
             <div
               style={{
                 padding: "6px 14px",
@@ -431,93 +320,121 @@ export default function SpendForm() {
             </div>
           </div>
 
-          {/* Tools List */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-            <AnimatePresence>
-              {tools.map((item) => {
-                const tool = getToolById(item.toolId);
-                if (!tool) return null;
-                const activePlan = tool.plans.find((p) => p.id === item.planId);
-                const toolCost = activePlan ? activePlan.pricePerSeat * item.seats : 0;
-
-                return (
-                  <motion.div
-                    key={item.toolId}
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.94 }}
-                    className="glass"
+          {/* Interactive Tool Grid Tiles */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))",
+              gap: "10px",
+              marginBottom: "20px",
+            }}
+          >
+            {TOOLS.map((t) => {
+              const isSelected = tools.some((tool) => tool.toolId === t.id);
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => toggleTool(t.id)}
+                  style={{
+                    padding: "12px 10px",
+                    borderRadius: "var(--radius-md)",
+                    border: isSelected ? "2px solid var(--accent-primary)" : "1px solid var(--border-subtle)",
+                    background: isSelected ? "var(--accent-subtle)" : "var(--bg-input)",
+                    color: "var(--text-primary)",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "6px",
+                    cursor: "pointer",
+                    transition: "all 0.15s ease",
+                    boxShadow: isSelected ? "0 0 12px var(--accent-glow)" : "none",
+                  }}
+                >
+                  <span style={{ fontSize: "24px" }}>{t.logo}</span>
+                  <span style={{ fontSize: "12px", fontWeight: 700, textAlign: "center" }}>{t.name}</span>
+                  <span
                     style={{
-                      borderRadius: "var(--radius-lg)",
-                      padding: "16px 20px",
-                      display: "flex",
-                      flexWrap: "wrap",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: "16px",
-                      border: "1px solid var(--border-subtle)",
+                      fontSize: "10px",
+                      fontWeight: 800,
+                      color: isSelected ? "var(--status-success)" : "var(--text-muted)",
                     }}
                   >
-                    {/* Tool Header & Badge */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "180px" }}>
-                      <span style={{ fontSize: "28px" }}>{tool.logo}</span>
-                      <div>
-                        <div style={{ fontWeight: 800, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                          {tool.name}
+                    {isSelected ? "✓ Active" : "+ Add"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Configured Tools Seat & Plan Customizer */}
+          {tools.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px", paddingTop: "16px", borderTop: "1px solid var(--border-subtle)" }}>
+              <div style={{ fontSize: "11px", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)" }}>
+                Adjust Active Tiers & Seat Counts:
+              </div>
+              <AnimatePresence>
+                {tools.map((item) => {
+                  const tool = getToolById(item.toolId);
+                  if (!tool) return null;
+                  const activePlan = tool.plans.find((p) => p.id === item.planId);
+                  const toolCost = activePlan ? activePlan.pricePerSeat * item.seats : 0;
+
+                  return (
+                    <motion.div
+                      key={item.toolId}
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="glass"
+                      style={{
+                        borderRadius: "var(--radius-md)",
+                        padding: "14px 18px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "14px",
+                        border: "1px solid var(--border-subtle)",
+                      }}
+                    >
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: "160px" }}>
+                        <span style={{ fontSize: "24px" }}>{tool.logo}</span>
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+                            {tool.name}
+                          </div>
+                          <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>
+                            {formatCurrency(activePlan?.pricePerSeat || 0, currency)}/seat
+                          </div>
                         </div>
-                        {tool.badge && (
-                          <span
-                            style={{
-                              fontSize: "10px",
-                              fontWeight: 700,
-                              color: "var(--accent-primary)",
-                            }}
-                          >
-                            {tool.badge}
-                          </span>
-                        )}
                       </div>
-                    </div>
 
-                    {/* Plan Selector */}
-                    <div style={{ flex: 1, minWidth: "160px" }}>
-                      <label
-                        htmlFor={`plan-select-${item.toolId}`}
-                        style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", marginBottom: "4px" }}
-                      >
-                        TIER / PLAN
-                      </label>
-                      <select
-                        id={`plan-select-${item.toolId}`}
-                        value={item.planId}
-                        onChange={(e) => handlePlanChange(item.toolId, e.target.value)}
-                        style={{
-                          width: "100%",
-                          padding: "8px 12px",
-                          borderRadius: "var(--radius-sm)",
-                          border: "1px solid var(--border-strong)",
-                          background: "var(--bg-input)",
-                          color: "var(--text-primary)",
-                          fontSize: "var(--text-xs)",
-                          fontWeight: 600,
-                        }}
-                      >
-                        {tool.plans.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} ({formatCurrency(p.pricePerSeat, currency)}/seat)
-                          </option>
-                        ))}
-                      </select>
-                    </div>
+                      {/* Plan Dropdown */}
+                      <div style={{ flex: 1, minWidth: "160px" }}>
+                        <select
+                          value={item.planId}
+                          onChange={(e) => handlePlanChange(item.toolId, e.target.value)}
+                          style={{
+                            width: "100%",
+                            padding: "8px 12px",
+                            borderRadius: "var(--radius-sm)",
+                            border: "1px solid var(--border-strong)",
+                            background: "var(--bg-input)",
+                            color: "var(--text-primary)",
+                            fontSize: "var(--text-xs)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          {tool.plans.map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({formatCurrency(p.pricePerSeat, currency)}/seat)
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                    {/* Seats Stepper */}
-                    <div style={{ width: "130px" }}>
-                      <label
-                        htmlFor={`seats-input-${item.toolId}`}
-                        style={{ display: "block", fontSize: "11px", fontWeight: 700, color: "var(--text-muted)", marginBottom: "4px" }}
-                      >
-                        SEATS
-                      </label>
+                      {/* Seats Stepper */}
                       <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                         <button
                           type="button"
@@ -535,25 +452,9 @@ export default function SpendForm() {
                         >
                           -
                         </button>
-                        <input
-                          id={`seats-input-${item.toolId}`}
-                          type="number"
-                          min={1}
-                          max={5000}
-                          value={item.seats}
-                          onChange={(e) => handleSeatsChange(item.toolId, parseInt(e.target.value) || 1)}
-                          style={{
-                            width: "50px",
-                            textAlign: "center",
-                            padding: "4px",
-                            borderRadius: "var(--radius-sm)",
-                            border: "1px solid var(--border-strong)",
-                            background: "var(--bg-input)",
-                            color: "var(--text-primary)",
-                            fontWeight: 700,
-                            fontSize: "var(--text-xs)",
-                          }}
-                        />
+                        <span style={{ fontSize: "var(--text-xs)", fontWeight: 800, minWidth: "50px", textAlign: "center" }}>
+                          {item.seats} {item.seats === 1 ? "seat" : "seats"}
+                        </span>
                         <button
                           type="button"
                           onClick={() => handleSeatsChange(item.toolId, item.seats + 1)}
@@ -571,105 +472,150 @@ export default function SpendForm() {
                           +
                         </button>
                       </div>
-                    </div>
 
-                    {/* Subtotal & Delete */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "14px", minWidth: "110px", justifyContent: "flex-end" }}>
-                      <div style={{ textAlign: "right" }}>
-                        <div style={{ fontWeight: 800, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
-                          {formatCurrency(toolCost, currency)}
+                      {/* Subtotal & Delete */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "110px", justifyContent: "flex-end" }}>
+                        <div style={{ textAlign: "right" }}>
+                          <div style={{ fontWeight: 800, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
+                            {formatCurrency(toolCost, currency)}
+                          </div>
+                          <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>/month</div>
                         </div>
-                        <div style={{ fontSize: "10px", color: "var(--text-muted)" }}>/month</div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTool(item.toolId)}
+                          aria-label={`Remove ${tool.name}`}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--status-danger)",
+                            cursor: "pointer",
+                            fontSize: "16px",
+                            padding: "4px",
+                          }}
+                        >
+                          ✕
+                        </button>
                       </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveTool(item.toolId)}
-                        aria-label={`Remove ${tool.name}`}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "var(--status-danger)",
-                          cursor: "pointer",
-                          fontSize: "16px",
-                          padding: "4px",
-                        }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
-
-          {/* Add Another Tool Dropdown / Quick Add Buttons */}
-          <div
-            style={{
-              marginTop: "20px",
-              paddingTop: "16px",
-              borderTop: "1px solid var(--border-subtle)",
-              display: "flex",
-              flexWrap: "wrap",
-              alignItems: "center",
-              gap: "12px",
-            }}
-          >
-            {availableToolsToAdd.length > 0 ? (
-              <div style={{ display: "flex", gap: "8px", flex: 1, minWidth: "240px" }}>
-                <select
-                  value={selectedToolToAdd}
-                  onChange={(e) => setSelectedToolToAdd(e.target.value)}
-                  style={{
-                    flex: 1,
-                    padding: "10px 14px",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--border-strong)",
-                    background: "var(--bg-input)",
-                    color: "var(--text-primary)",
-                    fontSize: "var(--text-xs)",
-                    fontWeight: 600,
-                  }}
-                >
-                  <option value="">+ Select another AI tool to add...</option>
-                  {availableToolsToAdd.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.logo} {t.name} ({t.category})
-                    </option>
-                  ))}
-                </select>
-                <button
-                  type="button"
-                  disabled={!selectedToolToAdd}
-                  onClick={() => handleAddTool(selectedToolToAdd)}
-                  style={{
-                    padding: "10px 18px",
-                    borderRadius: "var(--radius-md)",
-                    background: selectedToolToAdd ? "var(--accent-primary)" : "var(--accent-subtle)",
-                    color: "#FFFFFF",
-                    fontWeight: 700,
-                    fontSize: "var(--text-xs)",
-                    border: "none",
-                    cursor: selectedToolToAdd ? "pointer" : "not-allowed",
-                  }}
-                >
-                  Add Tool
-                </button>
-              </div>
-            ) : (
-              <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
-                ✨ All standard AI developer & productivity tools added.
-              </div>
-            )}
-          </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
+            </div>
+          )}
         </motion.div>
 
-        {/* Optional Contact Capture (For PDF & Executive Report) */}
+        {/* Team Size & Workload Card */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.1 }}
+          className="glass"
+          style={{
+            borderRadius: "var(--radius-xl)",
+            padding: "24px 28px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "18px" }}>
+            <div
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: "var(--radius-sm)",
+                background: "var(--luxury-gradient)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#FFFFFF",
+                fontSize: "16px",
+              }}
+            >
+              👥
+            </div>
+            <div>
+              <h2 style={{ fontSize: "var(--text-lg)", fontWeight: 800, color: "var(--text-primary)" }}>
+                Step 2: Team Size & Workload Profile
+              </h2>
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)" }}>
+                Used to determine over-provisioned enterprise minimums
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            {/* Team Size Slider & Number */}
+            <div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                <label
+                  htmlFor="team-size-range"
+                  style={{ fontSize: "var(--text-xs)", fontWeight: 700, color: "var(--text-secondary)" }}
+                >
+                  TEAM / COMPANY SIZE
+                </label>
+                <strong style={{ fontSize: "var(--text-xs)", color: "var(--accent-primary)" }}>
+                  {teamSize} {teamSize === 1 ? "Person" : "People"}
+                </strong>
+              </div>
+              <input
+                id="team-size-range"
+                type="range"
+                min={1}
+                max={100}
+                value={Math.min(teamSize, 100)}
+                onChange={(e) => setTeamSize(parseInt(e.target.value) || 1)}
+              />
+            </div>
+
+            {/* Primary Workload */}
+            <div>
+              <label
+                htmlFor="workload-select"
+                style={{
+                  display: "block",
+                  fontSize: "var(--text-xs)",
+                  fontWeight: 700,
+                  color: "var(--text-secondary)",
+                  marginBottom: "8px",
+                }}
+              >
+                PRIMARY WORKLOAD
+              </label>
+              <select
+                id="workload-select"
+                value={useCase}
+                onChange={(e) => setUseCase(e.target.value as "coding" | "writing" | "research" | "mixed")}
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--border-strong)",
+                  background: "var(--bg-input)",
+                  color: "var(--text-primary)",
+                  fontSize: "var(--text-xs)",
+                  fontWeight: 600,
+                }}
+              >
+                <option value="coding">💻 Coding & Software Engineering</option>
+                <option value="research">🔍 Research & Data Intelligence</option>
+                <option value="writing">✍️ Content & Copywriting</option>
+                <option value="mixed">🌐 Mixed Cross-Functional Operations</option>
+              </select>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Optional Email & Company */}
+        <motion.div
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
           className="glass"
           style={{
             borderRadius: "var(--radius-xl)",
@@ -694,7 +640,7 @@ export default function SpendForm() {
                   marginBottom: "6px",
                 }}
               >
-                WORK EMAIL (OPTIONAL FOR PDF EXPORT)
+                WORK EMAIL (OPTIONAL)
               </label>
               <input
                 id="work-email-input"
@@ -724,12 +670,12 @@ export default function SpendForm() {
                   marginBottom: "6px",
                 }}
               >
-                COMPANY NAME (OPTIONAL)
+                COMPANY / TEAM NAME (OPTIONAL)
               </label>
               <input
                 id="company-name-input"
                 type="text"
-                placeholder="Acme Tech Labs"
+                placeholder="Acme Labs"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 style={{
@@ -746,12 +692,12 @@ export default function SpendForm() {
           </div>
         </motion.div>
 
-        {/* Submit Button & Live Loading State */}
+        {/* Submit Action */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", marginTop: "8px" }}
+          transition={{ delay: 0.2 }}
+          style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px", marginTop: "6px" }}
         >
           <button
             type="submit"

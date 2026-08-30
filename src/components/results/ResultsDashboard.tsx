@@ -296,6 +296,27 @@ export default function ResultsDashboard() {
           </button>
 
           <button
+            onClick={() => window.print()}
+            type="button"
+            className="glass"
+            style={{
+              padding: "12px 20px",
+              borderRadius: "var(--radius-full)",
+              color: "var(--text-primary)",
+              fontWeight: 700,
+              fontSize: "var(--text-sm)",
+              border: "1px solid var(--border-strong)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <span>🖨️</span>
+            <span>Print / Save PDF</span>
+          </button>
+
+          <button
             onClick={handleCopyLink}
             type="button"
             className="glass"
