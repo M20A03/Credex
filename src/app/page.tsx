@@ -1,333 +1,266 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Chatbot from "@/components/chatbot/Chatbot";
+import { Suspense, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import SpendForm from "@/components/form/SpendForm";
-import SpendFormSkeleton from "@/components/form/SpendFormSkeleton";
 import ResultsDashboard from "@/components/results/ResultsDashboard";
+import Chatbot from "@/components/chatbot/Chatbot";
+import CustomCursor from "@/components/effects/CustomCursor";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+import CurrencyToggle from "@/components/CurrencyToggle";
+import ToolComparisonMatrix from "@/components/ToolComparisonMatrix";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import ToastContainer from "@/components/ToastContainer";
+import SpendFormSkeleton from "@/components/form/SpendFormSkeleton";
 import { useAuditStore } from "@/store/auditStore";
-import { useMounted } from "@/lib/use-mounted";
 
-const HERO_TOOLS = [
-  { icon: "✍️", name: "Cursor", color: "#6D28D9" },
-  { icon: "🐙", name: "Copilot", color: "#2563EB" },
-  { icon: "🧠", name: "Claude", color: "#D97706" },
-  { icon: "💬", name: "ChatGPT", color: "#10B981" },
-  { icon: "🪐", name: "Gemini", color: "#06B6D4" },
-  { icon: "🌊", name: "Windsurf", color: "#059669" },
-];
+function AuditApp() {
+  const { step, setStep, tools, teamSize, result } = useAuditStore();
+  const searchParams = useSearchParams();
 
-function HomeContent() {
-  const { step, setStep } = useAuditStore();
-  const mounted = useMounted();
-  const [charIndex, setCharIndex] = useState(0);
+  // Sync step from query parameters
+  useEffect(() => {
+    const stepParam = searchParams.get("step");
+    if (stepParam === "results" && result) {
+      setStep("results");
+    } else if (stepParam === "form") {
+      setStep("form");
+    }
+  }, [searchParams, result, setStep]);
 
-  const heroText = "Stop overpaying for AI tools.";
-
-  // Sync from URL query params once mounted
+  // Sync URL with step changes
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const params = new URLSearchParams(window.location.search);
-      const urlStep = params.get("step");
-      if (urlStep === "form" || urlStep === "results") {
-        setStep(urlStep);
+      const url = new URL(window.location.href);
+      if (step === "results" && result) {
+        url.searchParams.set("step", "results");
+      } else {
+        url.searchParams.delete("step");
       }
+      window.history.replaceState({}, "", url.toString());
     }
-  }, [setStep]);
-
-  // Typewriter effect
-  useEffect(() => {
-    if (charIndex < heroText.length) {
-      const timer = setTimeout(() => setCharIndex((i) => i + 1), 50);
-      return () => clearTimeout(timer);
-    }
-  }, [charIndex, heroText.length]);
-
-  if (!mounted) {
-    return (
-      <main style={{ minHeight: "100vh", padding: "80px 24px" }}>
-        <SpendFormSkeleton />
-      </main>
-    );
-  }
+  }, [step, result]);
 
   return (
-    <ErrorBoundary>
-      <main style={{ position: "relative", minHeight: "100vh" }}>
-        {/* Top Floating Navigation Bar with Theme Toggle */}
-        <header
+    <div style={{ position: "relative", minHeight: "100vh", zIndex: 1 }}>
+      {/* Background Liquid Aurora Blobs */}
+      <div className="liquid-bg" aria-hidden="true">
+        <div className="blob blob-1" />
+        <div className="blob blob-2" />
+        <div className="blob blob-3" />
+        <div className="blob blob-4" />
+      </div>
+
+      <CustomCursor />
+      <ToastContainer />
+
+      {/* Top Floating Glass Header */}
+      <header
+        style={{
+          position: "sticky",
+          top: 16,
+          zIndex: 100,
+          maxWidth: 1140,
+          margin: "0 auto",
+          padding: "0 16px",
+        }}
+      >
+        <div
+          className="glass-elevated"
           style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            background: "var(--bg-card)",
-            borderBottom: "1px solid var(--border-subtle)",
-            padding: "12px 24px",
+            borderRadius: "var(--radius-full)",
+            padding: "10px 22px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "16px",
           }}
         >
-          <div
-            style={{
-              maxWidth: 1100,
-              margin: "0 auto",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <div
-                style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "var(--radius-sm)",
-                  background: "var(--luxury-gradient)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "#FFFFFF",
-                  fontWeight: 800,
-                  fontSize: 16,
-                }}
-              >
-                C
-              </div>
-              <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
-                CREDEX
-              </span>
-            </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <ThemeToggle />
-            </div>
-          </div>
-        </header>
-
-        {/* ── HERO SECTION ── */}
-        <AnimatePresence>
-          {step === "form" && (
-            <motion.section
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.5 }}
+          {/* Logo */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <div
               style={{
-                position: "relative",
-                zIndex: 1,
-                textAlign: "center",
-                padding: "60px 24px 32px",
-                maxWidth: 900,
-                margin: "0 auto",
+                width: 34,
+                height: 34,
+                borderRadius: "50%",
+                background: "var(--luxury-gradient)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 900,
+                color: "#FFFFFF",
+                fontSize: "16px",
+                boxShadow: "0 0 16px var(--accent-glow)",
               }}
             >
-              {/* Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
+              C
+            </div>
+            <div>
+              <span style={{ fontWeight: 900, fontSize: "var(--text-base)", letterSpacing: "-0.02em", color: "var(--text-primary)" }}>
+                CREDEX
+              </span>
+              <span
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  background: "var(--accent-subtle)",
-                  border: "1px solid var(--border-strong)",
-                  borderRadius: "var(--radius-full)",
-                  padding: "6px 16px",
-                  marginBottom: 28,
-                  fontSize: "var(--text-xs)",
-                  fontWeight: 700,
-                  color: "var(--text-primary)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                <span style={{ color: "var(--accent-primary)" }}>✦</span>
-                CREDEX · AI SPEND AUDIT & SRE ENGINE
-              </motion.div>
-
-              {/* Main Heading */}
-              <motion.h1
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.6 }}
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "clamp(34px, 5.5vw, 64px)",
+                  fontSize: "10px",
                   fontWeight: 800,
-                  lineHeight: 1.15,
-                  letterSpacing: "-0.02em",
-                  marginBottom: 16,
+                  color: "var(--accent-primary)",
+                  marginLeft: "6px",
+                  background: "var(--accent-subtle)",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                 }}
               >
-                <span className="gradient-text">
-                  {heroText.slice(0, charIndex)}
-                  <span
-                    style={{
-                      borderRight: "3px solid var(--accent-primary)",
-                      marginLeft: 2,
-                      animation: "cursor-blink 1s step-end infinite",
-                    }}
-                  />
-                </span>
-              </motion.h1>
+                SPEND INTELLIGENCE
+              </span>
+            </div>
+          </div>
 
-              <motion.p
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
+          {/* Social Proof Pill */}
+          <div
+            style={{
+              display: "none",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "var(--text-xs)",
+              color: "var(--text-secondary)",
+              fontWeight: 600,
+            }}
+            className="md:flex"
+          >
+            <span style={{ color: "var(--status-success)" }}>●</span> 500+ Indian Startups Audited
+          </div>
+
+          {/* Controls: Currency + Theme */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <CurrencyToggle />
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content Area */}
+      <main style={{ maxWidth: 1140, margin: "0 auto", padding: "48px 20px 80px" }}>
+        {/* Hero Banner (Only shown on form step) */}
+        {step === "form" && (
+          <section style={{ textAlign: "center", marginBottom: "48px" }}>
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                padding: "6px 16px",
+                borderRadius: "var(--radius-full)",
+                background: "var(--accent-subtle)",
+                border: "1px solid var(--border-strong)",
+                fontSize: "var(--text-xs)",
+                fontWeight: 800,
+                color: "var(--accent-primary)",
+                marginBottom: "18px",
+              }}
+            >
+              <span>⚡</span> 2026 AI SOFTWARE SPEND OPTIMIZER FOR INDIAN TECH
+            </div>
+
+            <h1
+              style={{
+                fontSize: "clamp(2.4rem, 5vw, 4.2rem)",
+                fontWeight: 900,
+                lineHeight: 1.12,
+                letterSpacing: "-0.03em",
+                maxWidth: "860px",
+                margin: "0 auto 16px",
+              }}
+            >
+              Stop Overpaying For <span className="gradient-text">AI Developer Tools</span>
+            </h1>
+
+            <p
+              style={{
+                fontSize: "clamp(1rem, 2vw, 1.25rem)",
+                color: "var(--text-secondary)",
+                maxWidth: "680px",
+                margin: "0 auto 28px",
+                lineHeight: 1.6,
+              }}
+            >
+              Instant audit for Indian engineering teams & startups. Right-size your seats across Cursor,
+              Copilot, Claude, ChatGPT, Windsurf, and Gemini in ₹ INR or $ USD.
+            </p>
+
+            {/* Quick Stat Highlights */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                gap: "24px",
+                fontSize: "var(--text-xs)",
+                color: "var(--text-muted)",
+                fontWeight: 600,
+              }}
+            >
+              <div>💰 Average Savings: <strong style={{ color: "var(--status-success)" }}>₹1.4L+ / year</strong></div>
+              <div>⚡ Audit Speed: <strong style={{ color: "var(--text-primary)" }}>&lt; 5 Seconds</strong></div>
+              <div>🔒 Privacy: <strong style={{ color: "var(--text-primary)" }}>No Bank Login / No Cards</strong></div>
+            </div>
+          </section>
+        )}
+
+        <ErrorBoundary
+          fallback={(_err, reset) => (
+            <div className="glass" style={{ textAlign: "center", padding: "40px", borderRadius: "var(--radius-xl)" }}>
+              <p style={{ color: "var(--status-danger)", fontWeight: 700 }}>Something interrupted the audit view.</p>
+              <button
+                onClick={reset}
                 style={{
-                  fontSize: "clamp(15px, 2vw, 19px)",
-                  color: "var(--text-secondary)",
-                  maxWidth: 580,
-                  margin: "0 auto 36px",
-                  lineHeight: 1.6,
+                  marginTop: "12px",
+                  padding: "8px 16px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--accent-primary)",
+                  color: "#fff",
+                  border: "none",
+                  cursor: "pointer",
                 }}
               >
-                Free AI spend audit for engineering teams & Indian startups. Enter your tools, get
-                instant ₹ savings recommendations — no credit card needed.
-              </motion.p>
-
-              {/* Orbiting tool icons */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  flexWrap: "wrap",
-                  gap: 10,
-                  marginBottom: 16,
-                }}
-              >
-                {HERO_TOOLS.map((tool, i) => (
-                  <motion.div
-                    key={tool.name}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{
-                      delay: 0.7 + i * 0.06,
-                      type: "spring",
-                      stiffness: 300,
-                      damping: 20,
-                    }}
-                    whileHover={{ scale: 1.1, y: -3 }}
-                    className="glass"
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 6,
-                      borderRadius: "var(--radius-sm)",
-                      padding: "6px 12px",
-                      fontSize: "var(--text-xs)",
-                      fontWeight: 600,
-                      color: "var(--text-primary)",
-                    }}
-                  >
-                    <span style={{ fontSize: 16 }}>{tool.icon}</span>
-                    {tool.name}
-                  </motion.div>
-                ))}
-              </motion.div>
-
-              <style>{`
-                @keyframes cursor-blink {
-                  0%, 100% { opacity: 1; }
-                  50% { opacity: 0; }
-                }
-              `}</style>
-            </motion.section>
+                ↻ Retry
+              </button>
+            </div>
           )}
-        </AnimatePresence>
+        >
+          {step === "form" ? <SpendForm /> : <ResultsDashboard />}
+        </ErrorBoundary>
 
-        {/* ── MAIN CONTENT CONTAINER ── */}
-        <div
+        {/* Tool Comparison Matrix */}
+        <ToolComparisonMatrix />
+
+        {/* FAQ & Enterprise Assurance */}
+        <section
           style={{
-            position: "relative",
-            zIndex: 1,
-            maxWidth: 1100,
-            margin: "0 auto",
-            padding: "0 24px 120px",
+            marginTop: "64px",
+            paddingTop: "40px",
+            borderTop: "1px solid var(--border-subtle)",
+            textAlign: "center",
           }}
         >
-          <AnimatePresence mode="wait">
-            {step === "form" && (
-              <motion.div
-                key="form"
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.35 }}
-              >
-                <SpendForm />
-              </motion.div>
-            )}
-
-            {step === "processing" && (
-              <motion.div
-                key="processing"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  minHeight: "50vh",
-                  gap: 24,
-                  textAlign: "center",
-                }}
-              >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
-                  style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: "50%",
-                    border: "3px solid var(--border-subtle)",
-                    borderTopColor: "var(--accent-primary)",
-                  }}
-                />
-                <div>
-                  <h2 style={{ fontSize: "var(--text-2xl)", fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>
-                    Analysing your AI subscriptions...
-                  </h2>
-                  <p style={{ color: "var(--text-muted)", fontSize: "var(--text-sm)" }}>
-                    Comparing plan tiers and team seat utilization
-                  </p>
-                </div>
-              </motion.div>
-            )}
-
-            {step === "results" && (
-              <motion.div
-                key="results"
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-              >
-                <ResultsDashboard />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* ── CHATBOT ── */}
-        <Chatbot />
+          <div style={{ fontSize: "var(--text-xs)", color: "var(--text-muted)", marginBottom: "8px" }}>
+            CREDEX AI BUDGET AUDIT PLATFORM · HELLO@CREDEX.ROCKS
+          </div>
+          <div style={{ fontSize: "12px", color: "var(--text-secondary)" }}>
+            Built for engineering leaders, CTOs, and founders cutting cloud & AI subscription bloat.
+          </div>
+        </section>
       </main>
-    </ErrorBoundary>
+
+      {/* Floating Saver AI Chatbot */}
+      <Chatbot formContext={{ tools, teamSize }} />
+    </div>
   );
 }
 
 export default function HomePage() {
   return (
     <Suspense fallback={<SpendFormSkeleton />}>
-      <HomeContent />
+      <AuditApp />
     </Suspense>
   );
 }

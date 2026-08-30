@@ -17,6 +17,7 @@ interface AuditStore {
 
   // Form data
   tools: ToolInput[];
+  setTools: (tools: ToolInput[]) => void;
   teamSize: number;
   useCase: "coding" | "writing" | "research" | "mixed";
   email: string;
@@ -55,6 +56,12 @@ interface AuditStore {
   getFormData: () => AuditFormData;
 }
 
+const DEFAULT_TOOLS: ToolInput[] = [
+  { toolId: "cursor", planId: "pro", seats: 3 },
+  { toolId: "claude", planId: "pro", seats: 3 },
+  { toolId: "github-copilot", planId: "individual", seats: 2 },
+];
+
 export const useAuditStore = create<AuditStore>()(
   persist(
     (set, get) => ({
@@ -64,7 +71,8 @@ export const useAuditStore = create<AuditStore>()(
       currency: "INR",
       setCurrency: (currency) => set({ currency }),
 
-      tools: [],
+      tools: DEFAULT_TOOLS,
+      setTools: (tools) => set({ tools }),
       teamSize: 5,
       useCase: "coding",
       email: "",
@@ -102,7 +110,7 @@ export const useAuditStore = create<AuditStore>()(
       reset: () =>
         set({
           step: "form",
-          tools: [],
+          tools: DEFAULT_TOOLS,
           teamSize: 5,
           useCase: "coding",
           email: "",

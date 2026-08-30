@@ -1,17 +1,18 @@
 import { getToolById, getPlanById, getAlternatives } from './pricing-data';
-import { formatINR, formatINRShort } from './currency';
+import { formatCurrency, formatCurrencyShort } from './currency';
 
 export type ToolInput = {
   toolId: string;
   planId: string;
   seats: number;
-  monthlySpend: number; // what user actually pays
+  monthlySpend?: number;
 };
 
 export type AuditFormData = {
   tools: ToolInput[];
   teamSize: number;
   useCase: 'coding' | 'writing' | 'research' | 'mixed';
+  currency?: 'INR' | 'USD';
   email?: string;
   company?: string;
 };
@@ -54,6 +55,7 @@ export function runAudit(formData: AuditFormData): AuditResult {
   const recommendations: ToolRecommendation[] = [];
   let totalCurrentMonthly = 0;
   let totalOptimizedMonthly = 0;
+  const currency = formData.currency || 'INR';
 
   for (const input of formData.tools) {
     const tool = getToolById(input.toolId);
@@ -65,47 +67,37 @@ export function runAudit(formData: AuditFormData): AuditResult {
     const currentCost = input.seats * currentPlan.pricePerSeat;
     totalCurrentMonthly += currentCost;
 
-    // Find best plan for their team size and use case
     let bestPlan = currentPlan;
     let recommendationReason = '';
     let severity: ToolRecommendation['severity'] = 'optimal';
 
-    // Rule 1: Check if they can downgrade (over-provisioned)
+    // Rule 1: Check if overprovisioned (Enterprise / Business plan for small team)
     const cheaperPlans = tool.plans.filter(
       (p) => p.pricePerSeat < currentPlan.pricePerSeat && p.pricePerSeat > 0
     );
 
-    if (cheaperPlans.length > 0 && input.seats <= 3 && formData.teamSize <= 5) {
-      // Small team may not need enterprise/business tiers
+    if (cheaperPlans.length > 0 && input.seats <= 5 && formData.teamSize <= 10) {
       const betterPlan = cheaperPlans[cheaperPlans.length - 1];
-      if (betterPlan.pricePerSeat < currentPlan.pricePerSeat * 0.75) {
+      if (betterPlan.pricePerSeat < currentPlan.pricePerSeat * 0.8) {
         bestPlan = betterPlan;
-        recommendationReason = `Your team of ${input.seats} seats on a small team doesn't need ${currentPlan.name} tier. ${betterPlan.name} plan provides sufficient features at ${formatINR(betterPlan.pricePerSeat * input.seats)}/mo.`;
+        recommendationReason = `Your team of ${input.seats} seats on a ${formData.teamSize}-person team is over-provisioned on the ${currentPlan.name} tier. Switching to ${betterPlan.name} gives your devs complete feature access while reducing cost to ${formatCurrency(betterPlan.pricePerSeat * input.seats, currency)}/mo.`;
         severity = 'high';
       }
     }
 
-    // Rule 2: Check if paying too much vs actual usage
-    if (input.monthlySpend > 0 && currentCost > 0) {
-      const expectedCost = currentCost;
-      if (input.monthlySpend > expectedCost * 1.1) {
-        recommendationReason = `You're paying ${formatINR(input.monthlySpend)}/mo but the plan costs ${formatINR(expectedCost)}/mo. Check for duplicate seats.`;
-        severity = 'medium';
-      }
-    }
-
-    // Rule 3: Check if free tier might suffice
+    // Rule 2: Solo user evaluating tool
     const freePlan = tool.plans.find((p) => p.id === 'free');
     if (freePlan && currentPlan.pricePerSeat > 0 && input.seats === 1 && formData.teamSize === 1) {
       if (bestPlan.id === currentPlan.id) {
-        recommendationReason = `Solo user may get started with the Free tier to evaluate fit before committing to ${formatINR(currentPlan.pricePerSeat)}/mo.`;
+        recommendationReason = `For a solo founder, starting on the Free/Community tier allows workflow evaluation before committing to ${formatCurrency(currentPlan.pricePerSeat, currency)}/mo.`;
         bestPlan = freePlan;
         severity = 'medium';
       }
     }
 
+    // Rule 3: Optimal state
     if (severity === 'optimal' && bestPlan.id === currentPlan.id) {
-      recommendationReason = `You're on the right plan for your team size. ${currentPlan.name} at ${formatINR(currentCost)}/mo is well-optimized.`;
+      recommendationReason = `You are on the optimal plan for your current team size. ${currentPlan.name} at ${formatCurrency(currentCost, currency)}/mo provides the right balance of quota and team collaboration.`;
     }
 
     const recommendedCost = input.seats * bestPlan.pricePerSeat;
@@ -113,17 +105,16 @@ export function runAudit(formData: AuditFormData): AuditResult {
     const annualSavings = monthlySavings * 12;
     totalOptimizedMonthly += recommendedCost;
 
-    // Check alternative tools
+    // Rule 4: Alternative tool recommendations
     const alternatives = getAlternatives(input.toolId);
     let alternativeTool: ToolRecommendation['alternativeTool'] | undefined;
 
-    if (alternatives.length > 0 && currentCost > 1500) {
-      // Find cheapest alternative with good value
+    if (alternatives.length > 0 && currentCost > 1000) {
       let bestAlt: typeof alternativeTool;
       let bestAltSavings = 0;
 
       for (const alt of alternatives) {
-        const altPro = alt.plans.find((p) => p.id === 'pro' || p.id === 'individual');
+        const altPro = alt.plans.find((p) => p.id === 'pro' || p.id === 'individual' || p.popular);
         if (altPro && altPro.pricePerSeat < currentPlan.pricePerSeat) {
           const altCost = input.seats * altPro.pricePerSeat;
           const altSavings = currentCost - altCost;
@@ -135,13 +126,13 @@ export function runAudit(formData: AuditFormData): AuditResult {
               plan: altPro.name,
               cost: altCost,
               savings: altSavings,
-              reason: `${alt.name} ${altPro.name} offers comparable ${tool.category} capabilities at ${formatINR(altCost)}/mo, saving ${formatINR(altSavings)}/mo.`,
+              reason: `Switching to ${alt.name} (${altPro.name}) gives your engineering team full ${tool.category} AI assistance for ${formatCurrency(altCost, currency)}/mo, yielding ${formatCurrency(altSavings, currency)}/mo in direct savings.`,
             };
           }
         }
       }
 
-      if (bestAlt && bestAlt.savings > 500) {
+      if (bestAlt && bestAlt.savings > 300) {
         alternativeTool = bestAlt;
       }
     }
@@ -166,16 +157,16 @@ export function runAudit(formData: AuditFormData): AuditResult {
   const savingsPercentage =
     totalCurrentMonthly > 0 ? Math.round((totalMonthlySavings / totalCurrentMonthly) * 100) : 0;
 
-  // Generate summary text (fallback – Claude will enhance this)
+  // Fallback summary
   let summaryText = '';
-  if (totalMonthlySavings >= 42000) {
-    summaryText = `🚀 Significant savings opportunity detected! Your team is spending ${formatINRShort(totalCurrentMonthly)}/mo on AI tools. By optimizing plans and consolidating tools, you could save ${formatINRShort(totalMonthlySavings)}/mo — that's ${formatINRShort(totalAnnualSavings)}/year. Credex can help you implement these changes immediately.`;
-  } else if (totalMonthlySavings >= 8500) {
-    summaryText = `💡 Good news! We found ${formatINR(totalMonthlySavings)}/mo in potential savings across your AI stack. Smarter plan selection and right-sizing could put ${formatINRShort(totalAnnualSavings)} back in your budget annually.`;
+  if (totalMonthlySavings >= 25000) {
+    summaryText = `🚀 Substantial budget optimization detected! Your team is currently spending ${formatCurrencyShort(totalCurrentMonthly, currency)}/mo on AI software. By eliminating overprovisioned seats and right-sizing tiers, you can unlock ${formatCurrencyShort(totalMonthlySavings, currency)}/mo (${formatCurrencyShort(totalAnnualSavings, currency)}/year) back into your runway.`;
+  } else if (totalMonthlySavings >= 5000) {
+    summaryText = `💡 High-impact savings found! We detected ${formatCurrency(totalMonthlySavings, currency)}/mo in potential savings across your stack. Smarter tier selection will recover ${formatCurrencyShort(totalAnnualSavings, currency)} annually without impacting developer productivity.`;
   } else if (totalCurrentMonthly > 0) {
-    summaryText = `✅ You're spending well! Your AI tool stack of ${formatINRShort(totalCurrentMonthly)}/mo is reasonably optimized. Minor adjustments could save ${formatINR(totalMonthlySavings)}/mo.`;
+    summaryText = `✅ Well-calibrated stack! Your AI spend of ${formatCurrencyShort(totalCurrentMonthly, currency)}/mo is reasonably optimized for your team size. Minor tweaks can save ${formatCurrency(totalMonthlySavings, currency)}/mo.`;
   } else {
-    summaryText = `📊 Add your AI tools above to get a personalized spend audit with actionable savings recommendations.`;
+    summaryText = `📊 Add your active AI tools to generate a comprehensive ROI and spend optimization audit.`;
   }
 
   return {
