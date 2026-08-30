@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running pre-commit type check & linting..."
+npx tsc --noEmit || exit 1
+npx lint-staged || exit 1
+echo "✅ Pre-commit verification passed!"

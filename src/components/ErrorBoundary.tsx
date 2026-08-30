@@ -1,7 +1,6 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { useToastStore } from "@/lib/toast-store";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -25,7 +24,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error) {
-    console.error("Error boundary caught:", error);
+    console.error("ErrorBoundary caught:", error);
     this.props.onError?.(error);
   }
 
@@ -41,35 +40,38 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
       return (
         <div
+          className="glass"
           style={{
-            background: "rgba(239,68,68,0.1)",
-            border: "1px solid rgba(239,68,68,0.3)",
-            borderRadius: 12,
-            padding: 24,
+            border: "1px solid var(--status-danger-border)",
+            borderRadius: "var(--radius-lg)",
+            padding: "var(--space-8)",
             textAlign: "center",
-            margin: 16,
+            margin: "var(--space-6) auto",
+            maxWidth: 600,
           }}
         >
-          <p style={{ fontSize: 18, fontWeight: 700, marginBottom: 8, color: "#EF4444" }}>
-            ⚠️ Something went wrong
-          </p>
-          <p style={{ color: "rgba(15,23,42,0.6)", marginBottom: 16 }}>
-            {this.state.error.message}
+          <div style={{ fontSize: 36, marginBottom: "var(--space-2)" }}>⚠️</div>
+          <h2 style={{ fontSize: "var(--text-xl)", fontWeight: 700, marginBottom: "var(--space-2)", color: "var(--status-danger)" }}>
+            Something interrupted the audit view
+          </h2>
+          <p style={{ color: "var(--text-secondary)", fontSize: "var(--text-sm)", marginBottom: "var(--space-5)", lineHeight: 1.6 }}>
+            {this.state.error.message || "An unhandled UI state occurred. You can safely retry without losing saved data."}
           </p>
           <button
             onClick={this.reset}
+            type="button"
             style={{
-              background: "#EF4444",
-              color: "white",
+              background: "var(--status-danger)",
+              color: "#FFFFFF",
               border: "none",
-              borderRadius: 8,
-              padding: "10px 20px",
+              borderRadius: "var(--radius-md)",
+              padding: "12px 24px",
               fontWeight: 600,
               cursor: "pointer",
-              fontSize: 14,
+              fontSize: "var(--text-sm)",
             }}
           >
-            Try again
+            ↻ Recover View
           </button>
         </div>
       );

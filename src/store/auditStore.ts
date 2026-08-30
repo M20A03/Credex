@@ -4,11 +4,16 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuditFormData, AuditResult, ToolInput } from "@/lib/audit-engine";
 
-type Step = "form" | "processing" | "results";
+export type Step = "form" | "processing" | "results";
+export type CurrencyCode = "INR" | "USD";
 
 interface AuditStore {
   step: Step;
   setStep: (step: Step) => void;
+
+  // Currency
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
 
   // Form data
   tools: ToolInput[];
@@ -31,11 +36,15 @@ interface AuditStore {
   aiSummary: string;
   setAiSummary: (summary: string) => void;
 
-  // UI state
+  // UI state & Idempotency
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
+  isSubmitting: boolean;
+  setIsSubmitting: (submitting: boolean) => void;
+  activeFilter: "all" | "high" | "medium" | "optimal";
+  setActiveFilter: (filter: "all" | "high" | "medium" | "optimal") => void;
 
-  // New: AI model selection
+  // AI model selection
   selectedAI: string;
   setSelectedAI: (model: string) => void;
 
@@ -51,6 +60,9 @@ export const useAuditStore = create<AuditStore>()(
     (set, get) => ({
       step: "form",
       setStep: (step) => set({ step }),
+
+      currency: "INR",
+      setCurrency: (currency) => set({ currency }),
 
       tools: [],
       teamSize: 5,
@@ -77,11 +89,15 @@ export const useAuditStore = create<AuditStore>()(
 
       isLoading: false,
       setIsLoading: (isLoading) => set({ isLoading }),
+      isSubmitting: false,
+      setIsSubmitting: (isSubmitting) => set({ isSubmitting }),
+
+      activeFilter: "all",
+      setActiveFilter: (activeFilter) => set({ activeFilter }),
 
       // AI model selection
       selectedAI: "claude-sonnet-4-20250514",
       setSelectedAI: (selectedAI) => set({ selectedAI }),
-
 
       reset: () =>
         set({
@@ -94,6 +110,8 @@ export const useAuditStore = create<AuditStore>()(
           result: null,
           aiSummary: "",
           isLoading: false,
+          isSubmitting: false,
+          activeFilter: "all",
         }),
 
       getFormData: () => {
@@ -108,13 +126,16 @@ export const useAuditStore = create<AuditStore>()(
       },
     }),
     {
-      name: "credex-audit-store",
+      name: "credex-audit-store-v2",
       partialize: (state) => ({
         tools: state.tools,
         teamSize: state.teamSize,
         useCase: state.useCase,
         email: state.email,
         company: state.company,
+        currency: state.currency,
+        result: state.result,
+        step: state.step,
       }),
     }
   )

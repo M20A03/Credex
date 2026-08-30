@@ -1,47 +1,64 @@
 import { NextRequest, NextResponse } from "next/server";
-import { runAudit, type AuditFormData } from "@/lib/audit-engine";
+import { runAudit, type AuditFormData, type AuditResult } from "@/lib/audit-engine";
+import { normalizeDatabaseError } from "@/lib/error-handler";
+
+// In-memory idempotency cache for recent audit results
+const idempotencyCache = new Map<string, { result: AuditResult; timestamp: number }>();
 
 export async function POST(req: NextRequest) {
   try {
+    const idempotencyKey = req.headers.get("x-idempotency-key");
+
+    // Return cached response if idempotent key exists within 5 minutes
+    if (idempotencyKey && idempotencyCache.has(idempotencyKey)) {
+      const cached = idempotencyCache.get(idempotencyKey)!;
+      if (Date.now() - cached.timestamp < 300000) {
+        return NextResponse.json(cached.result, {
+          headers: {
+            "x-cache-status": "HIT",
+            "Cache-Control": "private, no-cache",
+          },
+        });
+      }
+    }
+
     const body: AuditFormData = await req.json();
 
-    // Validate
+    // Field Validations
     if (!body.tools || !Array.isArray(body.tools) || body.tools.length === 0) {
       return NextResponse.json(
-        { error: "At least one tool is required" },
+        { error: "At least one AI tool is required for audit analysis." },
         { status: 400 }
       );
     }
 
-    // Validate team size
     if (!body.teamSize || body.teamSize < 1 || body.teamSize > 10000) {
       return NextResponse.json(
-        { error: "Team size must be between 1 and 10000" },
+        { error: "Team size must be between 1 and 10,000." },
         { status: 400 }
       );
     }
 
-    // Validate use case
     const validUseCases = ["coding", "writing", "research", "mixed"];
     if (!validUseCases.includes(body.useCase)) {
       return NextResponse.json(
-        { error: "Invalid use case" },
+        { error: "Invalid use case parameter." },
         { status: 400 }
       );
     }
 
-    // Validate email format if provided
     if (body.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.email)) {
       return NextResponse.json(
-        { error: "Invalid email format" },
+        { error: "Invalid email format." },
         { status: 400 }
       );
     }
 
-    // Run the audit engine
+    // Run deterministic audit calculation engine
     const result = runAudit(body);
+    result.id = generateId();
 
-    // Try to get AI summary from Claude
+    // Anthropic Claude Summary Enrichment (10s graceful degradation)
     const apiKey = process.env.ANTHROPIC_API_KEY;
     if (apiKey && result.totalCurrentMonthly > 0) {
       try {
@@ -74,7 +91,7 @@ Write as if talking directly to the founder. Start with the key insight, mention
             max_tokens: 200,
             messages: [{ role: "user", content: prompt }],
           }),
-          signal: AbortSignal.timeout(30000), // 30 second timeout
+          signal: AbortSignal.timeout(10000), // 10s strict timeout
         });
 
         if (response.ok) {
@@ -83,25 +100,32 @@ Write as if talking directly to the founder. Start with the key insight, mention
           if (aiText) {
             result.summaryText = aiText;
           }
-        } else {
-          console.warn("Claude API non-200 response:", response.status);
         }
-      } catch (e) {
-        console.error("Claude summary error:", e);
-        // Keep fallback summary from audit engine
+      } catch (err) {
+        console.warn("Claude enrichment timed out or failed; falling back to rules summary:", err);
       }
     }
 
-    // Generate a unique ID for shareable URL
-    result.id = generateId();
+    // Cache idempotent response
+    if (idempotencyKey) {
+      idempotencyCache.set(idempotencyKey, { result, timestamp: Date.now() });
+      if (idempotencyCache.size > 200) {
+        const oldestKey = idempotencyCache.keys().next().value;
+        if (oldestKey) idempotencyCache.delete(oldestKey);
+      }
+    }
 
-    return NextResponse.json(result);
-  } catch (error) {
-    console.error("Audit API error:", error);
-    const errorMessage = error instanceof SyntaxError ? "Invalid JSON format" : "Failed to process audit";
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "private, no-cache, no-store, must-revalidate",
+      },
+    });
+  } catch (error: unknown) {
+    console.error("Audit API Error:", error);
+    const normalized = normalizeDatabaseError(error);
     return NextResponse.json(
-      { error: errorMessage },
-      { status: error instanceof SyntaxError ? 400 : 500 }
+      { error: normalized.message },
+      { status: normalized.statusCode }
     );
   }
 }

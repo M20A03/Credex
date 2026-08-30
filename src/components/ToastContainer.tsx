@@ -10,13 +10,6 @@ const ICONS = {
   warning: "⚠️",
 };
 
-const COLORS = {
-  success: { bg: "rgba(16,185,129,0.15)", border: "rgba(16,185,129,0.3)", text: "#10B981" },
-  error: { bg: "rgba(239,68,68,0.15)", border: "rgba(239,68,68,0.3)", text: "#EF4444" },
-  info: { bg: "rgba(59,130,246,0.15)", border: "rgba(59,130,246,0.3)", text: "#3B82F6" },
-  warning: { bg: "rgba(245,158,11,0.15)", border: "rgba(245,158,11,0.3)", text: "#F59E0B" },
-};
-
 export default function ToastContainer() {
   const { toasts, removeToast } = useToastStore();
 
@@ -26,35 +19,34 @@ export default function ToastContainer() {
         position: "fixed",
         bottom: 24,
         right: 24,
-        zIndex: 9999,
+        zIndex: 99999,
         pointerEvents: "none",
-        maxWidth: 400,
+        maxWidth: 420,
+        width: "calc(100vw - 48px)",
       }}
     >
       <AnimatePresence mode="popLayout">
         {toasts.map((toast) => {
-          const colors = COLORS[toast.type];
           const icon = ICONS[toast.type];
 
           return (
             <motion.div
               key={toast.id}
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              initial={{ opacity: 0, y: 20, scale: 0.94 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              exit={{ opacity: 0, y: 20, scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 420, damping: 28 }}
+              className="glass-elevated"
               style={{
-                background: colors.bg,
-                border: `1px solid ${colors.border}`,
-                borderRadius: 12,
+                borderRadius: "var(--radius-md)",
                 padding: "14px 18px",
                 display: "flex",
                 alignItems: "center",
                 gap: 12,
-                marginBottom: 12,
+                marginBottom: 10,
                 pointerEvents: "auto",
                 cursor: "pointer",
-                backdropFilter: "blur(10px)",
+                borderLeft: `4px solid var(--status-${toast.type})`,
               }}
               onClick={() => removeToast(toast.id)}
               role="alert"
@@ -64,8 +56,8 @@ export default function ToastContainer() {
                 <p
                   style={{
                     margin: 0,
-                    color: colors.text,
-                    fontSize: 14,
+                    color: "var(--text-primary)",
+                    fontSize: "var(--text-sm)",
                     fontWeight: 500,
                     lineHeight: 1.4,
                   }}
@@ -80,12 +72,13 @@ export default function ToastContainer() {
                     toast.action?.onClick();
                     removeToast(toast.id);
                   }}
+                  type="button"
                   style={{
                     background: "none",
                     border: "none",
-                    color: colors.text,
-                    fontWeight: 600,
-                    fontSize: 13,
+                    color: "var(--accent-primary)",
+                    fontWeight: 700,
+                    fontSize: "var(--text-xs)",
                     cursor: "pointer",
                     whiteSpace: "nowrap",
                   }}

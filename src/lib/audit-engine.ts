@@ -1,4 +1,4 @@
-import { TOOLS, getToolById, getPlanById, getAlternatives } from './pricing-data';
+import { getToolById, getPlanById, getAlternatives } from './pricing-data';
 import { formatINR, formatINRShort } from './currency';
 
 export type ToolInput = {

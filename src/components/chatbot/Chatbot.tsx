@@ -4,13 +4,21 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import AISelector from "@/components/chatbot/AISelector";
 import { useAuditStore } from "@/store/auditStore";
+import { apiFetch } from "@/lib/fetcher";
 
-type Message = {
+interface Message {
   id: string;
   role: "user" | "bot";
   content: string;
   timestamp: Date;
-};
+}
+
+interface StoredMessage {
+  id: string;
+  role: "user" | "bot";
+  content: string;
+  timestamp: string;
+}
 
 type FormContext = {
   tools?: Array<{ toolId: string; planId: string; seats: number }>;
@@ -56,7 +64,43 @@ interface ChatbotProps {
 
 export default function Chatbot({ formContext }: ChatbotProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === "undefined") {
+      return [
+        {
+          id: "welcome",
+          role: "bot",
+          content:
+            "👋 Hi! I'm **Saver AI** by Credex. I help engineering teams and founders optimize AI SaaS budgets in ₹. Ask me anything about tool pricing or contract renegotiation!",
+          timestamp: new Date(),
+        },
+      ];
+    }
+
+    try {
+      const saved = localStorage.getItem("credex-chat-history");
+      if (saved) {
+        const parsed = JSON.parse(saved) as StoredMessage[];
+        return parsed.slice(-6).map((m) => ({
+          ...m,
+          timestamp: new Date(m.timestamp),
+        }));
+      }
+    } catch {
+      // fallback
+    }
+
+    return [
+      {
+        id: "welcome",
+        role: "bot",
+        content:
+          "👋 Hi! I'm **Saver AI** by Credex. I help engineering teams and founders optimize AI SaaS budgets in ₹. Ask me anything about tool pricing or contract renegotiation!",
+        timestamp: new Date(),
+      },
+    ];
+  });
+
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [showEmailCapture, setShowEmailCapture] = useState(false);
@@ -65,42 +109,16 @@ export default function Chatbot({ formContext }: ChatbotProps) {
   const selectedAI = useAuditStore((s) => s.selectedAI);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const proactiveTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-
-  // Load chat history from localStorage
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem("credex-chat-history");
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        // Show last 3 messages
-        setMessages(
-          parsed.slice(-3).map((m: Message) => ({
-            ...m,
-            timestamp: new Date(m.timestamp),
-          }))
-        );
-      } else {
-        // Welcome message
-        setMessages([
-          {
-            id: "welcome",
-            role: "bot",
-            content:
-              "👋 Hi! I'm **Saver AI** by Credex. I help Indian startups stop overpaying for AI tools. Ask me anything about your audit, pricing in ₹, or comparisons!",
-            timestamp: new Date(),
-          },
-        ]);
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
+  const proactiveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Save to localStorage when messages change
   useEffect(() => {
     if (messages.length > 0) {
-      localStorage.setItem("credex-chat-history", JSON.stringify(messages));
+      try {
+        localStorage.setItem("credex-chat-history", JSON.stringify(messages));
+      } catch {
+        // quota exceeded
+      }
     }
   }, [messages]);
 
@@ -114,16 +132,19 @@ export default function Chatbot({ formContext }: ChatbotProps) {
     proactiveTimer.current = setTimeout(() => {
       if (!proactiveSent && !isOpen) {
         setProactiveSent(true);
-        // Show badge/nudge
       }
     }, 30000);
-    return () => clearTimeout(proactiveTimer.current);
+
+    return () => {
+      if (proactiveTimer.current) clearTimeout(proactiveTimer.current);
+    };
   }, [proactiveSent, isOpen]);
 
   // Focus input on open
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 300);
+      const t = setTimeout(() => inputRef.current?.focus(), 250);
+      return () => clearTimeout(t);
     }
   }, [isOpen]);
 
@@ -151,32 +172,31 @@ export default function Chatbot({ formContext }: ChatbotProps) {
         text.toLowerCase().includes("expert")
       ) {
         setIsTyping(true);
-        await new Promise((r) => setTimeout(r, 800));
+        await new Promise((r) => setTimeout(r, 600));
         setIsTyping(false);
         setShowEmailCapture(true);
         addMessage(
           "bot",
-          "🙌 Happy to connect you with a Credex expert! They can help you implement these optimizations and manage your entire AI budget. Please share your email:"
+          "🙌 Happy to connect you with a Credex spend specialist. Please drop your email below:"
         );
         return;
       }
 
-      // Try FAQ fallback first (instant)
+      // FAQ Fallback
       const fallback = findFallback(text);
       if (fallback) {
         setIsTyping(true);
-        await new Promise((r) => setTimeout(r, 800 + Math.random() * 600));
+        await new Promise((r) => setTimeout(r, 700));
         setIsTyping(false);
         addMessage("bot", fallback);
         return;
       }
 
-      // Try Claude API
+      // Live AI Request
       setIsTyping(true);
       try {
-        const res = await fetch("/api/chat", {
+        const data = await apiFetch<{ message: string }>("/api/chat", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             message: text,
             history: messages.slice(-6).map((m) => ({
@@ -186,79 +206,60 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             formContext,
             selectedAI,
           }),
-          signal: AbortSignal.timeout(15000), // 15 second timeout
+          showToastOnError: false,
+          timeoutMs: 12000,
+          retries: 1,
         });
 
-        if (!res.ok) {
-          throw new Error(`API error: ${res.status}`);
-        }
-        
-        const data = await res.json();
         setIsTyping(false);
-        
-        if (data.message) {
-          addMessage("bot", data.message);
-        } else {
-          throw new Error("No message in response");
-        }
-      } catch (error) {
+        addMessage("bot", data.message || "I couldn't process that response.");
+      } catch {
         setIsTyping(false);
-        console.error("Chat error:", error);
-        
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
-        
         addMessage(
           "bot",
-          errorMessage.includes("timeout") || errorMessage.includes("API error")
-            ? "💡 I'm having connection issues. Try asking: 'How do savings work?', 'Compare Cursor vs Copilot', or 'Show me an example audit'."
-            : "💡 Great question! For detailed guidance, try asking: 'How do savings work?', 'Compare Cursor vs Copilot', or 'Show me an example audit'. I'm here to help!"
+          "💡 I can help with tool comparisons (e.g. Cursor vs Copilot), seat planning, and ₹ pricing breakdowns. What would you like to explore?"
         );
       }
     },
-    [messages, formContext, addMessage]
+    [messages, formContext, selectedAI, addMessage]
   );
 
   const handleEmailSubmit = async () => {
-    if (!email.trim()) return;
-    
-    // Validate email
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       addMessage("bot", "⚠️ Please enter a valid email address.");
       return;
     }
-    
+
     addMessage("user", email);
     setShowEmailCapture(false);
     setIsTyping(true);
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 800));
     setIsTyping(false);
     addMessage(
       "bot",
-      `✅ Got it! A Credex expert will reach out to **${email}** within 24 hours. In the meantime, complete your audit above for a personalized recommendation!`
+      `✅ Confirmed! A Credex advisor will reach out to **${email}** within 24 hours.`
     );
     setEmail("");
 
-    // Fire lead capture
-    try {
-      await fetch("/api/lead", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, source: "chatbot" }),
-        signal: AbortSignal.timeout(10000),
-      });
-    } catch (error) {
-      console.warn("Lead capture failed:", error);
-      // silent fail - don't interrupt user experience
-    }
+    apiFetch("/api/lead", {
+      method: "POST",
+      body: JSON.stringify({ email, source: "chatbot" }),
+      showToastOnError: false,
+      timeoutMs: 8000,
+    }).catch(() => {});
   };
 
   const clearHistory = () => {
-    localStorage.removeItem("credex-chat-history");
+    try {
+      localStorage.removeItem("credex-chat-history");
+    } catch {
+      // ignore
+    }
     setMessages([
       {
         id: "welcome-new",
         role: "bot",
-        content: "👋 Hi! I'm **Saver AI** by Credex. How can I help optimize your AI spend today?",
+        content: "👋 Hi! I'm **Saver AI** by Credex. How can I assist with your AI budget today?",
         timestamp: new Date(),
       },
     ]);
@@ -266,37 +267,34 @@ export default function Chatbot({ formContext }: ChatbotProps) {
 
   return (
     <>
-      {/* Proactive nudge badge */}
+      {/* Proactive Nudge */}
       {proactiveSent && !isOpen && (
         <motion.div
           initial={{ opacity: 0, y: 10, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0 }}
+          className="glass-elevated"
           style={{
             position: "fixed",
-            bottom: 104,
+            bottom: 96,
             right: 28,
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(16px)",
-            border: "1px solid rgba(109,40,217,0.2)",
-            borderRadius: 12,
+            borderRadius: "var(--radius-md)",
             padding: "10px 16px",
-            color: "#0F172A",
-            fontSize: 13,
-            fontWeight: 500,
+            color: "var(--text-primary)",
+            fontSize: "var(--text-xs)",
+            fontWeight: 600,
             zIndex: 8999,
-            maxWidth: 220,
+            maxWidth: 240,
             cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(15,23,42,0.1)",
           }}
           onClick={() => {
             setIsOpen(true);
             setProactiveSent(false);
           }}
         >
-          💡 Need help optimizing your AI spend?
-          <span style={{ display: "block", fontSize: 11, color: "rgba(255,255,255,0.5)", marginTop: 2 }}>
-            Click to chat with Saver AI →
+          💡 Need help sizing your AI tools?
+          <span style={{ display: "block", fontSize: "11px", color: "var(--accent-primary)", marginTop: 2 }}>
+            Ask Saver AI →
           </span>
         </motion.div>
       )}
@@ -305,112 +303,122 @@ export default function Chatbot({ formContext }: ChatbotProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="chat-window glass"
-            initial={{ opacity: 0, scale: 0.85, y: 20 }}
+            className="chat-window glass-elevated"
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.85, y: 20 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ type: "spring", stiffness: 380, damping: 28 }}
+            style={{
+              position: "fixed",
+              bottom: 96,
+              right: 28,
+              width: 380,
+              maxWidth: "calc(100vw - 40px)",
+              height: 520,
+              maxHeight: "calc(100vh - 120px)",
+              borderRadius: "var(--radius-xl)",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+              zIndex: 9000,
+            }}
           >
             {/* Header */}
             <div
               style={{
-                padding: "16px 20px",
-                borderBottom: "1px solid rgba(109,40,217,0.1)",
+                padding: "14px 18px",
+                borderBottom: "1px solid var(--border-subtle)",
                 display: "flex",
                 alignItems: "center",
-                gap: 12,
-                background: "linear-gradient(135deg, rgba(109,40,217,0.08), rgba(37,99,235,0.06))",
+                gap: 10,
+                background: "var(--bg-card)",
               }}
             >
               <div
                 style={{
-                  width: 36,
-                  height: 36,
+                  width: 34,
+                  height: 34,
                   borderRadius: "50%",
-                  background: "linear-gradient(135deg,#6D28D9,#2563EB)",
+                  background: "var(--luxury-gradient)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  fontSize: 18,
+                  fontSize: 16,
+                  color: "#FFFFFF",
                   flexShrink: 0,
                 }}
               >
                 🤖
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: "#0F172A" }}>
+                <div style={{ fontWeight: 700, fontSize: "var(--text-sm)", color: "var(--text-primary)" }}>
                   Saver AI
                 </div>
-                <div style={{ fontSize: 11, color: "#10B981", display: "flex", alignItems: "center", gap: 4 }}>
-                  <span
-                    style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: "50%",
-                      background: "#10B981",
-                      display: "inline-block",
-                    }}
-                  />
-                  Online · by Credex
+                <div style={{ fontSize: "11px", color: "var(--status-success)", display: "flex", alignItems: "center", gap: 4 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--status-success)" }} />
+                  Online · Credex SRE
                 </div>
               </div>
               <AISelector />
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  onClick={clearHistory}
-                  title="Clear history"
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "rgba(15,23,42,0.4)",
-                    cursor: "pointer",
-                    fontSize: 16,
-                    padding: 4,
-                    lineHeight: 1,
-                  }}
-                >
-                  🗑️
-                </button>
-                <button
-                  onClick={() => setIsOpen(false)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "rgba(15,23,42,0.5)",
-                    cursor: "pointer",
-                    fontSize: 18,
-                    padding: 4,
-                    lineHeight: 1,
-                  }}
-                >
-                  ✕
-                </button>
-              </div>
+              <button
+                onClick={clearHistory}
+                type="button"
+                title="Clear history"
+                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 14 }}
+              >
+                🗑️
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                type="button"
+                style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 16 }}
+              >
+                ✕
+              </button>
             </div>
 
-            {/* Messages */}
-            <div className="chat-messages">
+            {/* Message Area */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: "auto",
+                padding: "16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "12px",
+              }}
+            >
               {messages.map((msg) => (
-                <div key={msg.id} style={{ display: "flex", flexDirection: "column" }}>
+                <div
+                  key={msg.id}
+                  style={{
+                    alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
+                    maxWidth: "85%",
+                  }}
+                >
                   <div
-                    className={`message-bubble ${msg.role}`}
-                    style={{ alignSelf: msg.role === "user" ? "flex-end" : "flex-start" }}
-                  >
-                    <div
-                      dangerouslySetInnerHTML={{
-                        __html: msg.content
-                          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-                          .replace(/\n/g, "<br/>"),
-                      }}
-                    />
-                  </div>
+                    style={{
+                      background: msg.role === "user" ? "var(--accent-primary)" : "var(--bg-card)",
+                      color: msg.role === "user" ? "#FFFFFF" : "var(--text-primary)",
+                      border: msg.role === "user" ? "none" : "1px solid var(--border-subtle)",
+                      borderRadius: "var(--radius-md)",
+                      padding: "10px 14px",
+                      fontSize: "var(--text-sm)",
+                      lineHeight: 1.5,
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: msg.content
+                        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+                        .replace(/\n/g, "<br/>"),
+                    }}
+                  />
                   <span
                     style={{
-                      fontSize: 10,
-                      color: "rgba(15,23,42,0.3)",
+                      fontSize: "10px",
+                      color: "var(--text-muted)",
                       marginTop: 2,
-                      alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-                      padding: "0 4px",
+                      display: "block",
+                      textAlign: msg.role === "user" ? "right" : "left",
                     }}
                   >
                     {formatTime(msg.timestamp)}
@@ -419,35 +427,56 @@ export default function Chatbot({ formContext }: ChatbotProps) {
               ))}
 
               {isTyping && (
-                <div className="message-bubble bot" style={{ alignSelf: "flex-start", padding: "12px 16px" }}>
-                  <div className="typing-dots">
-                    <span /><span /><span />
-                  </div>
+                <div
+                  style={{
+                    alignSelf: "flex-start",
+                    background: "var(--bg-card)",
+                    border: "1px solid var(--border-subtle)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "8px 14px",
+                    fontSize: "var(--text-sm)",
+                    color: "var(--text-muted)",
+                  }}
+                >
+                  Saver AI is typing...
                 </div>
               )}
 
-              {/* Email capture */}
               {showEmailCapture && (
-                <div style={{ display: "flex", gap: 8, padding: "4px 0" }}>
+                <div style={{ display: "flex", gap: 6, marginTop: 4 }}>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleEmailSubmit()}
-                    placeholder="you@company.com"
-                    className="form-input"
-                    style={{ flex: 1, fontSize: 13, padding: "8px 12px", minHeight: 40 }}
+                    placeholder="you@company.in"
+                    style={{
+                      flex: 1,
+                      padding: "8px 12px",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--border-strong)",
+                      background: "var(--bg-input)",
+                      color: "var(--text-primary)",
+                      fontSize: "var(--text-xs)",
+                    }}
                   />
                   <button
                     onClick={handleEmailSubmit}
-                    className="btn-primary"
-                    style={{ padding: "8px 16px", fontSize: 13 }}
+                    type="button"
+                    style={{
+                      padding: "8px 14px",
+                      borderRadius: "var(--radius-sm)",
+                      background: "var(--accent-primary)",
+                      color: "#FFFFFF",
+                      fontSize: "var(--text-xs)",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
                   >
                     Send
                   </button>
                 </div>
               )}
-
               <div ref={messagesEndRef} />
             </div>
 
@@ -455,18 +484,28 @@ export default function Chatbot({ formContext }: ChatbotProps) {
             {messages.length <= 2 && (
               <div
                 style={{
-                  padding: "8px 16px",
+                  padding: "8px 14px",
                   display: "flex",
                   flexWrap: "wrap",
                   gap: 6,
-                  borderTop: "1px solid rgba(255,255,255,0.05)",
+                  borderTop: "1px solid var(--border-subtle)",
+                  background: "var(--bg-card)",
                 }}
               >
                 {QUICK_REPLIES.map((reply) => (
                   <button
                     key={reply}
-                    className="quick-reply-chip"
                     onClick={() => sendMessage(reply)}
+                    type="button"
+                    style={{
+                      background: "var(--accent-subtle)",
+                      border: "1px solid var(--border-strong)",
+                      borderRadius: "var(--radius-full)",
+                      padding: "4px 10px",
+                      fontSize: "11px",
+                      color: "var(--text-primary)",
+                      cursor: "pointer",
+                    }}
                   >
                     {reply}
                   </button>
@@ -474,14 +513,14 @@ export default function Chatbot({ formContext }: ChatbotProps) {
               </div>
             )}
 
-            {/* Input */}
+            {/* Input Box */}
             <div
               style={{
-                padding: "12px 16px",
-                borderTop: "1px solid rgba(109,40,217,0.1)",
+                padding: "12px 14px",
+                borderTop: "1px solid var(--border-subtle)",
                 display: "flex",
                 gap: 8,
-                background: "rgba(255,255,255,0.9)",
+                background: "var(--bg-card)",
               }}
             >
               <input
@@ -495,14 +534,29 @@ export default function Chatbot({ formContext }: ChatbotProps) {
                     sendMessage(inputValue);
                   }
                 }}
-                placeholder="Ask about your AI spend..."
-                className="form-input"
-                style={{ flex: 1, fontSize: 14, padding: "10px 14px", minHeight: 44 }}
+                placeholder="Ask about AI savings..."
+                style={{
+                  flex: 1,
+                  padding: "10px 14px",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--border-subtle)",
+                  background: "var(--bg-input)",
+                  color: "var(--text-primary)",
+                  fontSize: "var(--text-sm)",
+                }}
               />
               <button
                 onClick={() => sendMessage(inputValue)}
-                className="btn-primary"
-                style={{ padding: "10px 16px", minHeight: 44, fontSize: 18, lineHeight: 1 }}
+                type="button"
+                style={{
+                  padding: "10px 16px",
+                  borderRadius: "var(--radius-md)",
+                  background: "var(--accent-primary)",
+                  color: "#FFFFFF",
+                  fontWeight: 700,
+                  border: "none",
+                  cursor: "pointer",
+                }}
               >
                 ↑
               </button>
@@ -511,34 +565,32 @@ export default function Chatbot({ formContext }: ChatbotProps) {
         )}
       </AnimatePresence>
 
-      {/* Floating Orb */}
-      <div className="chat-orb" onClick={() => setIsOpen((o) => !o)}>
-        <div className="chat-orb-pulse" />
-        <div className="chat-orb-pulse-2" />
-        <motion.div
-          className="chat-orb-circle"
-          whileTap={{ scale: 0.92 }}
-          animate={isOpen ? { rotate: 180 } : { rotate: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-        >
-          <span style={{ fontSize: 26 }}>{isOpen ? "✕" : "🤖"}</span>
-        </motion.div>
-        {!isOpen && proactiveSent && (
-          <div
-            style={{
-              position: "absolute",
-              top: -2,
-              right: -2,
-              width: 16,
-              height: 16,
-              borderRadius: "50%",
-              background: "#EF4444",
-              border: "2px solid #0A0A0F",
-              animation: "orb-pulse 1.5s ease-out infinite",
-            }}
-          />
-        )}
-      </div>
+      {/* Floating Orb Trigger */}
+      <button
+        onClick={() => setIsOpen((o) => !o)}
+        type="button"
+        aria-label="Open Saver AI Chat"
+        style={{
+          position: "fixed",
+          bottom: 28,
+          right: 28,
+          width: 54,
+          height: 54,
+          borderRadius: "50%",
+          background: "var(--luxury-gradient)",
+          color: "#FFFFFF",
+          border: "none",
+          boxShadow: "var(--shadow-elevated)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          fontSize: 24,
+          zIndex: 8999,
+        }}
+      >
+        {isOpen ? "✕" : "🤖"}
+      </button>
     </>
   );
 }
