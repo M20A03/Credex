@@ -84,6 +84,15 @@ export default function CustomCursor() {
     window.addEventListener("mousedown", onMouseDown, { passive: true });
     rafRef.current = requestAnimationFrame(animate);
 
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      } else {
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     // Sparkle keyframe injection
     const styleId = "cursor-sparkle-style";
     let style = document.getElementById(styleId) as HTMLStyleElement | null;
@@ -103,6 +112,7 @@ export default function CustomCursor() {
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseover", onMouseOver);
       window.removeEventListener("mousedown", onMouseDown);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }

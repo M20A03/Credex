@@ -200,15 +200,18 @@ button, a, input, select {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  contain: strict;
+  transform: translate3d(0, 0, 0);
 }
 
 .blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(110px);
+  filter: blur(70px);
   opacity: var(--blob-opacity);
   animation: blob-float 25s ease-in-out infinite alternate;
   will-change: transform;
+  transform: translateZ(0);
 }
 
 .blob-1 {

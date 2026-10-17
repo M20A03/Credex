@@ -9,7 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "bg-deep": "#0A0A0F",
+        "bg-deep": "#0B0F19",
+        "navy-slate": "#0B0F19",
+        "emerald-gain": "#10B981",
+        "cyber-cyan": "#06B6D4",
         "bg-card": "rgba(15, 23, 42, 0.6)",
         "bg-elevated": "rgba(30, 41, 59, 0.8)",
         purple: {
