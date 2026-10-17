@@ -1,33 +1,89 @@
-# Credex AI Spend Audit — README
+# Credex — AI Financial Audit & Risk Compliance Engine
 
-**Stop overpaying for AI tools.** Free, instant spend audit for Indian startups in ₹.
+<div align="center">
 
-## Quick Start
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Active_200_OK-00C853?style=for-the-badge&logo=vercel&logoColor=white)](https://credex-sand.vercel.app/)
+![Platform](https://img.shields.io/badge/Platform-Vercel-0070F3?style=for-the-badge)
+[![Author](https://img.shields.io/badge/Author-Mayank_Raj-orange?style=for-the-badge&logo=github)](https://github.com/M20A03)
+![Maintenance](https://img.shields.io/badge/Maintained-Yes-success?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
+
+</div>
+
+---
+
+## 📖 Overview
+
+Cutting-edge FinTech compliance intelligence and credit risk assessment platform powered by Claude Anthropic AI, Next.js, and Radix UI enterprise components.
+
+## 🚀 Live Demo & Production URL
+
+Experience the live, active production deployment in your browser:
+
+> 🌐 **Verified Active Production Link:**  
+> **[https://credex-sand.vercel.app/](https://credex-sand.vercel.app/)**
+
+*Status:* `200 OK — Production Active & Connected`
+
+
+---
+
+## ✨ Key Features
+
+- **Deep financial statement analysis powered by Anthropic Claude SDK**
+- **Automated creditworthiness scoring, anomaly detection, and fraud risk indicators**
+- **Enterprise Radix UI accordions, tabs, dialogs, and interactive data visualization**
+- **Real-time audit reporting with downloadable compliance summaries**
+- **Zero-latency streaming responses with resilient API error recovery**
+
+---
+
+## 📱 2026 Spatial Web & Mobile Viewport Specifications
+
+- **Precision Viewport Scaling:** Multi-tier responsive grid: adaptive single-column audit view on mobile (360px–430px) and multi-panel split ledger on desktop (1280px+).
+- **Touch Ergonomics:** Enforces standard 48px minimum interactive tap boundaries across all buttons, inputs, and navigation drawers.
+- **Hardware Acceleration:** Zero image-layout shifts, GPU-accelerated micro-animations, and fluid 60fps transitions.
+- **Notch & Safe Area Compliance:** Dynamic insets utilizing `padding-bottom: max(16px, env(safe-area-inset-bottom))`.
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+| Layer | Technology |
+| :--- | :--- |
+| **Framework / Runtime** | `Next.js / React / TypeScript` |
+| **Styling & Design System** | `Tailwind CSS, Radix UI Primitives, Obsidian FinTech Theme` |
+| **Deployment & Hosting** | `Vercel` |
+| **Repository** | [https://github.com/M20A03/Credex](https://github.com/M20A03/Credex) |
+| **Author** | [Mayank Raj (@M20A03)](https://github.com/M20A03) |
+
+---
+
+## 💻 Getting Started Locally
+
+### Prerequisites
+- Node.js (v18.0.0 or higher) / Python 3.10+ (where applicable)
+- Git installed on your system
+
+### Installation & Run
+
 ```bash
-cd ~/Desktop/Credex/credex-audit
-cp .env.example .env.local
-# Add your ANTHROPIC_API_KEY, SUPABASE credentials, RESEND_API_KEY
+git clone https://github.com/M20A03/Credex.git
+cd Credex
+npm install
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000)
 
-## Features
-- 🧮 Real-time savings calculator (₹ INR with lakh/crore notation)
-- 💬 Saver AI chatbot (floating orb → glass chat window)
-- 📊 Animated results dashboard (spring-physics number ticker)
-- 🔒 Lead capture with rate-limiting + honeypot
-- 📱 Fully responsive (320px → 1600px+)
-- ✨ 12+ premium CSS effects (glassmorphism, liquid bg, custom cursor, etc.)
+---
 
-## Architecture Decisions (5 Trade-offs)
-1. **CSS-first animations over Framer Motion for backgrounds** — Blob animations use pure CSS keyframes to avoid JS overhead on the main thread; Framer Motion reserved for component transitions.
-2. **Zustand over Redux** — Much lighter (< 1kB), simpler API, built-in persistence middleware; Redux adds unnecessary boilerplate for single-page state.
-3. **API-less audit engine** — Core `audit-engine.ts` is pure TypeScript with no external calls, making it instantly testable and offline-capable. Claude enriches but doesn't gate the output.
-4. **Graceful degradation** — Every external integration (Supabase, Resend, Claude) has a fallback path so the app works fully without any API keys in dev.
-5. **Pricing data as TS constants, not a DB** — Tool prices rarely change; static `pricing-data.ts` allows zero-latency lookups and easy version-controlled updates.
+## 👤 Author & Maintainer
 
-## Environment Variables
-See `.env.example` for all required variables.
+**Mayank Raj**  
+- **GitHub:** [@M20A03](https://github.com/M20A03)
+- **Email:** `mayankrajgupta01@gmail.com`
 
-## License
-MIT
+---
+
+<div align="center">
+<sub>Crafted with precision • Production-Ready • 2026 Spatial Experience</sub>
+</div>
