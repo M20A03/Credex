@@ -91,6 +91,89 @@ export default function SpendForm() {
   const [company, setCompany] = useState("");
   const [analysisStep, setAnalysisStep] = useState<string>("");
 
+  // Audit Dropzone & Document OCR states
+  const [isDragging, setIsDragging] = useState(false);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
+  const [fileProgress, setFileProgress] = useState(0);
+  const [fileStatusText, setFileStatusText] = useState("");
+  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
+
+  const simulateInvoiceAudit = async (
+    fileName: string,
+    sampleConfig: {
+      teamSize: number;
+      useCase: "coding" | "writing" | "research" | "mixed";
+      tools: ToolItem[];
+      companyName: string;
+    }
+  ) => {
+    setIsProcessingFile(true);
+    setUploadedFileName(fileName);
+    setFileProgress(15);
+    setFileStatusText("Scanning Balance Sheet & Tool Invoices...");
+
+    await new Promise((r) => setTimeout(r, 450));
+    setFileProgress(45);
+    setFileStatusText("Calculating Liquidity Ratios & AI Seat Utilization...");
+
+    await new Promise((r) => setTimeout(r, 450));
+    setFileProgress(80);
+    setFileStatusText("Checking Compliance & Redundant Seat Multipliers...");
+
+    await new Promise((r) => setTimeout(r, 450));
+    setFileProgress(100);
+    setFileStatusText(`Ingested ${sampleConfig.tools.length} developer tools!`);
+
+    setTeamSize(sampleConfig.teamSize);
+    setUseCase(sampleConfig.useCase);
+    setTools(sampleConfig.tools);
+    if (!company) setCompany(sampleConfig.companyName);
+
+    await new Promise((r) => setTimeout(r, 350));
+    setIsProcessingFile(false);
+    addToast({
+      type: "success",
+      message: `📄 Ingested ${fileName}: ${sampleConfig.tools.length} AI tools populated!`,
+    });
+  };
+
+  const handleFileDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      simulateInvoiceAudit(file.name, {
+        teamSize: 15,
+        useCase: "mixed",
+        companyName: "Acme Tech",
+        tools: [
+          { toolId: "cursor", planId: "business", seats: 12 },
+          { toolId: "claude", planId: "team", seats: 15 },
+          { toolId: "github-copilot", planId: "business", seats: 10 },
+          { toolId: "chatgpt", planId: "team", seats: 6 },
+        ],
+      });
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      simulateInvoiceAudit(file.name, {
+        teamSize: 15,
+        useCase: "coding",
+        companyName: "DevCorp",
+        tools: [
+          { toolId: "cursor", planId: "business", seats: 14 },
+          { toolId: "claude", planId: "team", seats: 10 },
+          { toolId: "perplexity", planId: "pro", seats: 5 },
+        ],
+      });
+    }
+  };
+
   // Calculate live total monthly spend preview
   const liveTotalMonthlySpend = tools.reduce((acc, item) => {
     const tool = getToolById(item.toolId);
@@ -220,6 +303,219 @@ export default function SpendForm() {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <span style={{ background: "var(--status-success)", color: "#fff", width: 22, height: 22, borderRadius: "50%", display: "inline-flex", alignItems: "center", justifyContent: "center", fontWeight: 800, flexShrink: 0 }}>3</span>
           <span style={{ fontWeight: 700 }}>Instant ₹/$ savings</span>
+        </div>
+      </div>
+
+      {/* Interactive Audit Dropzone & OCR Ingestion */}
+      <div style={{ marginBottom: "20px" }}>
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleFileDrop}
+          className="glass-elevated"
+          style={{
+            borderRadius: "var(--radius-xl)",
+            padding: "clamp(16px, 3vw, 24px)",
+            border: isDragging ? "2px dashed var(--accent-primary)" : "1px dashed var(--border-strong)",
+            background: isDragging ? "var(--accent-subtle)" : "var(--bg-card)",
+            boxShadow: isDragging ? "0 0 25px var(--accent-glow)" : undefined,
+            transition: "all 0.25s ease",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          <input
+            id="audit-file-input"
+            type="file"
+            accept=".csv,.pdf,.xlsx,.json"
+            onChange={handleFileInputChange}
+            style={{ display: "none" }}
+          />
+
+          {isProcessingFile ? (
+            <div style={{ padding: "8px 0" }}>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+                style={{ fontSize: "2rem", display: "inline-block", marginBottom: "8px" }}
+              >
+                ⚡
+              </motion.div>
+              <div style={{ fontSize: "14px", fontWeight: 800, color: "var(--text-primary)", marginBottom: "6px" }}>
+                {fileStatusText}
+              </div>
+              <div style={{ fontSize: "11px", color: "var(--text-muted)", marginBottom: "12px" }}>
+                Target File: <strong style={{ color: "var(--accent-cyan)" }}>{uploadedFileName}</strong>
+              </div>
+              {/* Animated Progress Bar */}
+              <div
+                style={{
+                  height: "8px",
+                  maxWidth: "360px",
+                  margin: "0 auto",
+                  borderRadius: "9999px",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  overflow: "hidden",
+                }}
+              >
+                <motion.div
+                  style={{
+                    height: "100%",
+                    borderRadius: "9999px",
+                    background: "var(--luxury-gradient)",
+                  }}
+                  animate={{ width: `${fileProgress}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <div style={{ fontSize: "2rem", marginBottom: "6px" }}>📁</div>
+              <h3 style={{ fontSize: "clamp(14px, 3vw, 17px)", fontWeight: 800, color: "var(--text-primary)", marginBottom: "4px" }}>
+                Auto-Audit: Drop Balance Sheet or Invoice
+              </h3>
+              <p style={{ fontSize: "clamp(11px, 2.4vw, 13px)", color: "var(--text-secondary)", maxWidth: "540px", margin: "0 auto 12px" }}>
+                Drag & drop SaaS ledger, credit card billing PDF, or tool export. Our engine extracts seats and calculates redundancy.
+              </p>
+
+              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "8px", alignItems: "center" }}>
+                <label
+                  htmlFor="audit-file-input"
+                  className="rotating-border"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "8px 18px",
+                    borderRadius: "var(--radius-full)",
+                    background: "var(--luxury-gradient)",
+                    color: "#fff",
+                    fontSize: "12px",
+                    fontWeight: 800,
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                  }}
+                >
+                  <span>📤</span>
+                  <span>Browse Document (.csv, .pdf, .json)</span>
+                </label>
+
+                {uploadedFileName && (
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "var(--status-success)",
+                      background: "var(--status-success-bg)",
+                      border: "1px solid var(--status-success-border)",
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-full)",
+                      fontWeight: 700,
+                    }}
+                  >
+                    ✓ Ingested: {uploadedFileName}
+                  </span>
+                )}
+              </div>
+
+              {/* Quick Sample Files */}
+              <div style={{ marginTop: "14px", paddingTop: "12px", borderTop: "1px solid var(--border-subtle)" }}>
+                <span style={{ fontSize: "10px", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginRight: "8px" }}>
+                  Or simulate with sample ledger:
+                </span>
+                <div style={{ display: "inline-flex", flexWrap: "wrap", gap: "6px", marginTop: "4px" }}>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      simulateInvoiceAudit("Acme-AI-Spend-Q3.csv", {
+                        teamSize: 15,
+                        useCase: "coding",
+                        companyName: "Acme Cloud",
+                        tools: [
+                          { toolId: "cursor", planId: "business", seats: 12 },
+                          { toolId: "claude", planId: "team", seats: 15 },
+                          { toolId: "github-copilot", planId: "business", seats: 10 },
+                        ],
+                      })
+                    }
+                    className="glass"
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-full)",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      cursor: "pointer",
+                      border: "1px solid var(--border-subtle)",
+                    }}
+                  >
+                    📄 Acme-AI-Spend-Q3.csv
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      simulateInvoiceAudit("YC-Batch-Invoices.pdf", {
+                        teamSize: 5,
+                        useCase: "coding",
+                        companyName: "YC Startup",
+                        tools: [
+                          { toolId: "cursor", planId: "business", seats: 5 },
+                          { toolId: "chatgpt", planId: "team", seats: 4 },
+                          { toolId: "perplexity", planId: "pro", seats: 3 },
+                        ],
+                      })
+                    }
+                    className="glass"
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-full)",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      cursor: "pointer",
+                      border: "1px solid var(--border-subtle)",
+                    }}
+                  >
+                    📊 YC-Batch-Invoices.pdf
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      simulateInvoiceAudit("Enterprise-Ledger-2026.json", {
+                        teamSize: 50,
+                        useCase: "mixed",
+                        companyName: "Fintech Core Ltd",
+                        tools: [
+                          { toolId: "cursor", planId: "enterprise", seats: 45 },
+                          { toolId: "github-copilot", planId: "enterprise", seats: 50 },
+                          { toolId: "claude", planId: "team", seats: 40 },
+                          { toolId: "chatgpt", planId: "enterprise", seats: 30 },
+                        ],
+                      })
+                    }
+                    className="glass"
+                    style={{
+                      padding: "4px 10px",
+                      borderRadius: "var(--radius-full)",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      cursor: "pointer",
+                      border: "1px solid var(--border-subtle)",
+                    }}
+                  >
+                    ⚡ Enterprise-Ledger-2026.json
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
