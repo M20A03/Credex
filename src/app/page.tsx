@@ -77,7 +77,16 @@ function AuditApp() {
           }}
         >
           {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
+          <div
+            onClick={() => {
+              setStep("form");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+            role="button"
+            tabIndex={0}
+            style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0, cursor: "pointer" }}
+            aria-label="Return to spend audit form"
+          >
             <div
               style={{
                 width: 32,
